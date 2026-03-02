@@ -1,12 +1,20 @@
-#define IMPORT 300  // <300, "import">
-#define ID 301      //<301, "std">; <301, "stdio">
-#define DOUBLE 302
-#define STR_LITERAL 303
-#define INT_LITERAL 304 // Tamen inclúe os entriros binarios (0b...)
-#define FLOAT_LITERAL 305
-#define WHILE 306
-#define FOREACH 307
-#define RETURN 308
-#define VOID 309
-#define CAST 310
+#ifndef DEFINICIONES_H
+#define DEFINICIONES_H
 
+// Comezo keywords
+#define IMPORT 300          // <300, "import">
+#define DOUBLE 301
+#define WHILE 302
+#define FOREACH 303
+#define RETURN 304
+#define VOID 305
+#define CAST 306
+#define INT 307
+// Fin keywords
+
+#define ID 308              //<308, "std">; <308, "stdio">
+#define STR_LITERAL 309
+#define INT_LITERAL 310     // Tamen inclúe os entriros binarios (0b...)
+#define FLOAT_LITERAL 311
+
+#endif //DEFINICIONES_H
