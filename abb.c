@@ -84,4 +84,16 @@ void buscarNodo(TABB A, TCLAVE clave, TIPOELEM *nodo) {
     }
 }
 
+void leerElementoAbb(TABB A, TIPOELEM *E) {
+    *E = A->entradaTS;
+}
+
+TABB izqAbb(TABB A) {
+    return A->izq;
+}
+
+TABB derAbb(TABB A) {
+    return A->der;
+}
+
 

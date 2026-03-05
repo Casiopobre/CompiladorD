@@ -46,4 +46,10 @@ void insertarEntrada(TABB *A, TIPOELEM E);
  */
 void buscarNodo(TABB A, TCLAVE clave, TIPOELEM *nodo);
 
+void leerElementoAbb(TABB A, TIPOELEM *E);
+
+TABB izqAbb(TABB A);
+
+TABB derAbb(TABB A);
+
 #endif //ABB_H

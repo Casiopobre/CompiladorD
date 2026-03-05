@@ -34,6 +34,7 @@ CompLexico* sigCompLexico() {
     // Mapeamos o arquivo en memoria
     Arquivo *arquivo = _mapearArquivo();
     
+    //! Hai que ter en conta que no metodo do cetinela, hai un EOF ao final de cada bloque
     // Lemos o codigo fonte caracter a caracter
     while ((c = _sigChar(arquivo)) != EOF) {
         //*printf("%c\n", c);
@@ -51,12 +52,6 @@ CompLexico* sigCompLexico() {
     }
     
     return compLexico;
-}
-
-int main() {
-    CompLexico *a = sigCompLexico();
-    printf("%ld\n", sizeof(*a));
-    free(a);
 }
 
 Arquivo *_mapearArquivo() {
@@ -96,9 +91,10 @@ char _sigChar(Arquivo *arquivo) {
     return c;
 }
 
+//! Ollo aqui, intentar facer as menores copias do arquivo posible
 char *_empaquetarString(int len, char* inicio){
     // Reservamos memoria para o lexema
-    char *lexema = malloc (sizeof(char)*len);
+    char *lexema = malloc(sizeof(char)*len);
     // Copiamos os caracteres que se corresponden ao lexema
     memcpy(lexema, inicio, len);
     // Engadimos o terminador de string

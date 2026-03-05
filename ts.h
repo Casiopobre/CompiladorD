@@ -8,7 +8,7 @@
 /**
  * Inicializa a taboa de simbolos, introducindo as keywords
  */
-void inicializar();
+void inicializarTS();
 
 /**
  * Inserta unha compoñente lexica an taboa de simbolos
@@ -20,5 +20,7 @@ bool insertar(CompLexico compLexicoInsertar);
  * Busca unha compoñente lexica por lexema na taboa de simbolos
  */
 CompLexico *buscar(char* lexema);
+
+void imprimirTS();
 
 #endif // TS_H

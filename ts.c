@@ -8,7 +8,7 @@
 TABB taboaSimbolos;
 
 
-void inicializar(){
+void inicializarTS(){
     CompLexico palabrasClave[] = 
     {
         {"import", IMPORT},
@@ -37,12 +37,24 @@ CompLexico *buscar(char *lexema) {
     return e;
 }
 
-int main() {
-    inicializar();
+// Recorre a árbore de esquerda a dereita (inorde) imprimindo o contido dos nodos
+void _recorrer_TS(TABB A){
+    if (esAbbVacio(A)) return;
 
-    CompLexico *e = buscar("void");
+    TIPOELEM nodo;
 
-    printf("<%s, %d>\n", e->lexema, e->id);
+    leerElementoAbb(A, &nodo);
 
-    return 0;
+    _recorrer_TS(izqAbb(A));
+
+    printf("<%s, %d>\n", nodo.lexema, nodo.id);
+    
+    _recorrer_TS(derAbb(A));
+}
+
+
+void imprimirTS() {
+    printf("~*~*~*~*~*~*~ Taboa de símbolos ~*~*~*~*~*~*~\n");
+
+    _recorrer_TS(taboaSimbolos);
 }
