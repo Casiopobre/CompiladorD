@@ -417,10 +417,9 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+# Custom
 notas.md
-
 *.out
-
 lexico
 main
 compilador

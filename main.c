@@ -11,6 +11,7 @@ int main(){
 
     imprimirTS();
 
+    sintactico();
 
     return 0;
 }
