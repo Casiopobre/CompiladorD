@@ -9,8 +9,15 @@
 #include "definiciones.h"
 #include "lexico.h"
 #include "entrada.h"
+#include "ts.h"
 
+/*TODO
+* Comprobar lóxica ao inserir na ts (facer algo como que comprobe e insira)
+* Revisar as funcións da ts
+* CAndo chega ao bloque B, se ralla e nn da lido ben
+*/
 
+char *_analizarIdentificador();
 
 CompLexico* sigCompLexico() {
     // Variables
@@ -21,48 +28,45 @@ CompLexico* sigCompLexico() {
     if (compLexico == NULL) return NULL;
     compLexico->id = 0;
     compLexico->lexema = "";
-
-    // Inicializamos o sistema de entrada
-    iniciar_SE();
     
     // Lemos o codigo fonte caracter a caracter
     while ((c = sig_char()) != EOF) {
-        printf("%c\n", c);
         // Comprobamos se é un identificador
         if (isalpha(c) || c == '_'){
             lexema = _analizarIdentificador();
-            //printf("%s\n", lexema);
-            //! buscarLexema(*ts): se xa está, devolver o identificador; se non, engadilo
+            printf("LEXEMA: %s\n", lexema);
+
+            if (existeLexemaTS(lexema)) {
+                free(compLexico);
+                compLexico = buscarLexemaTS(lexema);
+            } else {
+                compLexico->id = ID;
+                compLexico->lexema = lexema;
+                engadirEntradaTS(compLexico);
+            }
             break;
         // Comprobamos se é un dixito
-        } /*else if (isdigit) {
-            //TODO REMATAR !!!!!!!!!!!!!!!!!
+        } else if (c == ' ' || c == '.' || c == ';' || c == '\n') {
+            // Avanzamos inicio para que non se inclúa o espazo no seguinte lexema
+            obtener_lexema();
+            printf("Espacio\n");
         }
-        */
+        
     }
     
     return compLexico;
 }
 
-int main() {
-    sigCompLexico();
-}
-
-
-
 char *_analizarIdentificador() {
     char c, *lexema;
-    // Len = 2 para o char que xa se leu, e para o \0 do final do string
-    int len = 2;
 
     while (1){
         c = sig_char();
         // Seguimos no bucle de ler o lexema do identificador
-        if (isalnum(c) || c == '_') {
-            len++;
-        // Cando lemos len++;"outro", rematamos de ler o lexema do identificador (hai que recuperar despois o char)
-        } else {
-            lexema =  obtener_lexema();
+        if (!(isalnum(c) || c == '_')) {
+            // Devolvemos o delimitador antes de capturar o lexema
+            devolver();
+            lexema = obtener_lexema();
             break;
         }
     }

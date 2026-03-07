@@ -52,4 +52,6 @@ TABB izqAbb(TABB A);
 
 TABB derAbb(TABB A);
 
+unsigned esMiembroAbb(TABB A, TIPOELEM E);
+
 #endif //ABB_H

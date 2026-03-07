@@ -4,12 +4,15 @@
 #include "lexico.h"
 #include "definiciones.h"
 #include "sintactico.h"
+#include "entrada.h"
 
 int main(){
 
     inicializarTS();
 
     imprimirTS();
+
+    iniciar_SE();
 
     sintactico();
 

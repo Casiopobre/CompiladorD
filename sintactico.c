@@ -4,7 +4,8 @@
 
 void sintactico(){
     CompLexico *compLexico;
+
     while ((compLexico = sigCompLexico()) != NULL) {
-        // 1. Comprobar se está na ts, e se non está, metelo.
+        printf("<%s, %d>\n", (*compLexico).lexema, (*compLexico).id);
     }
 }

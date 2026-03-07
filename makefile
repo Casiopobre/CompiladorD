@@ -1,22 +1,22 @@
+# Nombre del ejecutable final
+TARGET = main
+
+# Compilador y flags
 CC = gcc
 CFLAGS = -Wall
-TARGET = compilador
 
-OBJS = main.o lexico.o ts.o
+# Localizar los archivos .c
+SRCS = main.c lexico.c entrada.c sintactico.c abb.c ts.c
 
-all: $(TARGET)
 
+# Regla por defecto: compilar el ejecutable
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(SRCS)
 
-main: main.c lexico.h ts.h definiciones.h
-	$(CC) $(CFLAGS) main.c -o main
-
-lexico: lexico.c lexico.h definiciones.h
-	$(CC) $(CFLAGS) lexico.c -o lexico
-
-ts: ts.c ts.h definiciones.h
-	$(CC) $(CFLAGS) ts.c -o ts
 
 clean:
-	rm -f $(TARGET) main lexico ts
+	rm -f $(OBJS) $(TARGET)
+
+
+run: $(TARGET)
+	./$(TARGET)

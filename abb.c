@@ -96,4 +96,26 @@ TABB derAbb(TABB A) {
     return A->der;
 }
 
+unsigned _es_miembro_clave(TABB A, TCLAVE cl) {
+    if (esAbbVacio(A)) {
+        return 0;
+    }
+    int comp = _compararClaveElem(cl, A->entradaTS);
+
+    if (comp == 0) { //cl == A->info
+        return 1;
+    }
+    if (comp > 0) { //cl > A->info
+        return _es_miembro_clave(derAbb(A), cl);
+    }
+    //cl < A->info
+    return _es_miembro_clave(izqAbb(A), cl);
+}
+
+//Funciones públicas
+
+unsigned esMiembroAbb(TABB A, TIPOELEM E) {
+    return _es_miembro_clave(A, _claveElem(&E));
+}
+
 

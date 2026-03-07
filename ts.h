@@ -14,13 +14,15 @@ void inicializarTS();
  * Inserta unha compoñente lexica an taboa de simbolos
  * @param compLexicoInsertar a compoñente léxica (struct) que se queira insertar na ts
  */
-bool insertar(CompLexico compLexicoInsertar);
+void engadirEntradaTS(CompLexico *entrada);
 
 /**
  * Busca unha compoñente lexica por lexema na taboa de simbolos
  */
-CompLexico *buscar(char* lexema);
+CompLexico *buscarLexemaTS(char* lexema);
 
 void imprimirTS();
+
+int existeLexemaTS(char *lexema);
 
 #endif // TS_H

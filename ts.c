@@ -29,12 +29,25 @@ void inicializarTS(){
     }
 }
 
-CompLexico *buscar(char *lexema) {
+CompLexico *buscarLexemaTS(char *lexema) {
     TIPOELEM *e = malloc(sizeof(TIPOELEM));
     TCLAVE clave = lexema;
     buscarNodo(taboaSimbolos, clave, e);
 
     return e;
+}
+
+int existeLexemaTS(char *lexema) {
+    TIPOELEM *e = malloc(sizeof(TIPOELEM));
+    e->lexema = lexema;
+
+    unsigned comprobacion = esMiembroAbb(taboaSimbolos, *e);
+    free(e);
+    return comprobacion;
+}
+
+void engadirEntradaTS(CompLexico *entrada){
+    insertarEntrada(&taboaSimbolos, *entrada);
 }
 
 // Recorre a árbore de esquerda a dereita (inorde) imprimindo o contido dos nodos
@@ -54,7 +67,7 @@ void _recorrer_TS(TABB A){
 
 
 void imprimirTS() {
-    printf("~*~*~*~*~*~*~ Taboa de símbolos ~*~*~*~*~*~*~\n");
-
+    printf("~*~*~*~*~ Taboa de símbolos ~*~*~*~*~\n");
     _recorrer_TS(taboaSimbolos);
+    printf("~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~\n");
 }

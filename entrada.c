@@ -7,15 +7,9 @@
 #include <unistd.h>
 #include <string.h>
 
-#define T_BUF 8
+#define T_BUF 16
 #define T_BUF_TOTAL 2*T_BUF
 #define INI_BLOQUE_B T_BUF+1
-
-/*TODO
- //* Resolver o probelema de copiar un lexema que comeza nun bloque e remata en outro (copia parcial?)
- //* Resolevr o problema de devolver(): cando se acepta en "otro" e haiq ue tirar delantero atrás, 
- //* solucionar problma de volver a ler o EOF e machacar o bloque xa copiado anteriormente
-*/
 
 // Buffer físico que contén os dous buffers lóxicos (bloque A e bloque B)
 char parBuffers[T_BUF_TOTAL+2];
@@ -30,7 +24,12 @@ FILE *fd;
 int lenLexema;
 
 // Para gardar o trozo de lexema en caso de cambiar de bloque (por deseño, un lexema non pode ser máis grande que T_BUF)
-char parteLexema[T_BUF];
+char parteLexema[T_BUF+1];
+
+char lexemaActual[T_BUF+1];
+
+// Para marcar cando teño que ignorar o eof
+int ignorarEOF;
 
 // Declaración de funcións:
 void _cargar_bloque_A();
@@ -59,13 +58,16 @@ void iniciar_SE() {
 
     // Inicializamos a lonxitude do lexema a 0
     lenLexema = 0;
+
+    // Inicializamos para non ignorar os EOF
+    ignorarEOF = 0;
 }
 
 // Función para cargar o bloque A
 void _cargar_bloque_A(){
-    // Lemos os caracteres suficientes para
+    // Lemos os caracteres suficientes para encher o buffer do bloque A
     if (fread(parBuffers, sizeof(char), T_BUF, fd) == 0){
-        perror("Erro na chamda a fread");
+        perror("Erro ao cargar o bloque A");
         return;
     }
 
@@ -74,13 +76,20 @@ void _cargar_bloque_A(){
 
 // Función para cargar o bloque B
 void _cargar_bloque_B() {
-    // Lemos os caracteres suficientes para
+    // Lemos os caracteres suficientes para encher o buffer do bloque B
     if (fread(parBuffers+INI_BLOQUE_B, sizeof(char), T_BUF, fd) == 0){
-        perror("Erro na chamda a fread");
+        perror("Erro ao cargar o bloque B");
         return;
     }
 
     printf("BLOQUE B: %s\n", parBuffers+INI_BLOQUE_B);
+}
+
+void _copiarParteLexema(){
+    // Copiamos a parte do lexema que corresponda
+    memcpy(parteLexema, inicio, lenLexema);
+    // Poñemos o terminador de string
+    parteLexema[lenLexema] = '\0';
 }
 
 // Función que devolve o seguinte caracter a ser procesado
@@ -89,15 +98,18 @@ char sig_char() {
     delantero++;
     lenLexema++;
     // Se nos atopamos cun EOF, hai que comprobar en que caso estamos
-    if (*delantero == EOF) {
+    if (*delantero == EOF && !ignorarEOF) {
         // Estamos no EOF do bloque A
         if (delantero == &(parBuffers[T_BUF])){
+            // Gardamos a parte de lexema xa lida antes de cambiar de bloque
+            _copiarParteLexema();
             _cargar_bloque_B();
             delantero++;
 
         // Estamos no EOF do bloque B
         } else if (delantero == &(parBuffers[T_BUF_TOTAL+1])) {
-            // Gardamos o trozo de lexema xa lido antes de cambiar de bloque
+            // Gardamos a parte de lexema xa lida antes de cambiar de bloque
+            _copiarParteLexema();
             _cargar_bloque_A();
             delantero = &(parBuffers[0]);
 
@@ -105,6 +117,8 @@ char sig_char() {
         } else {
             return EOF;
         }
+    } else if (*delantero == EOF && ignorarEOF) {
+        delantero++;
     }
 
     return c;
@@ -112,9 +126,43 @@ char sig_char() {
 
 // Devolve o lexema actual (comprendido entre inicio e delantero)
 char *obtener_lexema() {
-    // Gardamos espacio para o lexema
-    char *lexema = malloc(sizeof(char)*lenLexema+1);
+    // Comprobamos a lonxitude da parte do lexema xa gardada (se está entre dous bloques)
+    int len = strlen(parteLexema);
 
-    
+    // Se o lexema está nun só bloque
+    if (len == 0){
+        memcpy(lexemaActual, inicio, delantero-inicio);
+        lexemaActual[lenLexema] = '\0';
+        // Reiniciamos lenLExema
+        lenLexema = 0;
+        // Avanzamos inicio
+        inicio = delantero;
+        return lexemaActual;
+
+    // Se o lexema está en dous bloques (inicio+len+1 para que non copie o centinela)
+    } else {
+        memcpy(parteLexema+len, inicio+len+1, lenLexema-len);
+    }
+
+    // Rematamos o lexema en \0
+    parteLexema[lenLexema]  ='\0';
+
+    // Reiniciamos lenLExema
+    lenLexema = 0;
+    parteLexema[0] = '\0';
+
+    // Avanzamos inicio
+    inicio = delantero;
+
+    return parteLexema;
 }
 
+void devolver() {
+    delantero--;
+    lenLexema--;
+    if (*delantero == EOF) {
+        delantero--;
+        lenLexema--;
+        ignorarEOF = 1;
+    }
+}
