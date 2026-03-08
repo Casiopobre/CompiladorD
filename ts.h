@@ -1,6 +1,5 @@
 #ifndef TS_H
 #define TS_H
-#include <stdbool.h>
 #include "lexico.h"
 #include "abb.h"
 #include "definiciones.h"
@@ -24,5 +23,7 @@ CompLexico *buscarLexemaTS(char* lexema);
 void imprimirTS();
 
 int existeLexemaTS(char *lexema);
+
+void liberarMemoriaTS();
 
 #endif // TS_H

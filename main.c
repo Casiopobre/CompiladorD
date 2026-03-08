@@ -16,5 +16,9 @@ int main(){
 
     sintactico();
 
+    imprimirTS();
+
+    liberarMemoriaTS();
+
     return 0;
 }

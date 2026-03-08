@@ -54,4 +54,6 @@ TABB derAbb(TABB A);
 
 unsigned esMiembroAbb(TABB A, TIPOELEM E);
 
+void eliminarAbb(TABB *A);
+
 #endif //ABB_H

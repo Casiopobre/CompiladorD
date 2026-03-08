@@ -50,6 +50,11 @@ void engadirEntradaTS(CompLexico *entrada){
     insertarEntrada(&taboaSimbolos, *entrada);
 }
 
+void liberarMemoriaTS() {
+    eliminarAbb(&taboaSimbolos);
+    printf("Memoria da taboa de símbolos eliminada correctamente :)\n");
+}
+
 // Recorre a árbore de esquerda a dereita (inorde) imprimindo o contido dos nodos
 void _recorrer_TS(TABB A){
     if (esAbbVacio(A)) return;
