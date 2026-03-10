@@ -5,6 +5,9 @@
 void sintactico(){
     CompLexico *compLexico;
 
+    //compLexico = sigCompLexico();
+    //printf("<%s, %d>\n", (*compLexico).lexema, (*compLexico).id);
+
     while ((compLexico = sigCompLexico()) != NULL) {
         printf("<%s, %d>\n", (*compLexico).lexema, (*compLexico).id);
     }

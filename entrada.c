@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define T_BUF 16
+#define T_BUF 2048
 #define T_BUF_TOTAL 2*T_BUF
 #define INI_BLOQUE_B T_BUF+1
 
@@ -66,9 +66,16 @@ void iniciar_SE() {
 // Función para cargar o bloque A
 void _cargar_bloque_A(){
     // Lemos os caracteres suficientes para encher o buffer do bloque A
-    if (fread(parBuffers, sizeof(char), T_BUF, fd) == 0){
-        perror("Erro ao cargar o bloque A");
+    size_t charLeidos = fread(&parBuffers[0], sizeof(char), T_BUF, fd);
+
+    if (charLeidos == 0) {
+        perror ("Erro ao cargar o bloque B :(\n");
         return;
+    }
+
+    // Se se cargaron menos carateres que o tamaño dun bloque, colocamos o centinela ao final
+    if (charLeidos < T_BUF) {
+        parBuffers[charLeidos] = EOF;
     }
 
     printf("BLOQUE A: %s\n", parBuffers);
@@ -77,12 +84,19 @@ void _cargar_bloque_A(){
 // Función para cargar o bloque B
 void _cargar_bloque_B() {
     // Lemos os caracteres suficientes para encher o buffer do bloque B
-    if (fread(parBuffers+INI_BLOQUE_B, sizeof(char), T_BUF, fd) == 0){
-        perror("Erro ao cargar o bloque B");
+    size_t charLeidos = fread(&parBuffers[0], sizeof(char), T_BUF, fd);
+
+    if (charLeidos == 0) {
+        perror ("Erro ao cargar o bloque B :(\n");
         return;
     }
 
-    printf("BLOQUE B: %s\n", parBuffers+INI_BLOQUE_B);
+    // Se se cargaron menos carateres que o tamaño dun bloque, colocamos o centinela ao final
+    if (charLeidos < T_BUF) {
+        parBuffers[INI_BLOQUE_B + charLeidos] = EOF;
+    }
+
+    printf("BLOQUE A: %s\n", parBuffers);
 }
 
 void _copiarParteLexema(){
@@ -93,8 +107,8 @@ void _copiarParteLexema(){
 }
 
 // Función que devolve o seguinte caracter a ser procesado
-char sig_char() {
-    char c = *delantero;
+int sig_char() {
+    int c = (char) *delantero;
     delantero++;
     lenLexema++;
     // Se nos atopamos cun EOF, hai que comprobar en que caso estamos

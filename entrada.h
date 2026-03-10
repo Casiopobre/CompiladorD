@@ -4,7 +4,7 @@
 
 void iniciar_SE();
 
-char sig_char();
+int sig_char();
 
 char *obtener_lexema();
 
