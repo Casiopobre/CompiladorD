@@ -424,6 +424,8 @@ lexico
 main
 compilador
 ts
-
+.vscode/
+entrada
+sintactico
 
 

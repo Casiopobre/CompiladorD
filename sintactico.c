@@ -8,6 +8,7 @@ void sintactico(){
     //compLexico = sigCompLexico();
     //printf("<%s, %d>\n", (*compLexico).lexema, (*compLexico).id);
 
+    //? Cambiar por un do while(???
     while ((compLexico = sigCompLexico()) != NULL) {
         printf("<%s, %d>\n", (*compLexico).lexema, (*compLexico).id);
     }

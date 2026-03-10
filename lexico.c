@@ -150,9 +150,37 @@ char *_analizarStringLiteral() {
 
 // Analise de números -------------------------------------------------------
 
+// Analiza secuencias con 0-9 e _ (DecimalDigitsUS na documentación de D)
+CompLexico *_analizarIntegerLiteral() {
+    char c, *lexema;
+    CompLexico *cl;
+
+    while (1) {
+        c = sig_char();
+
+        // Cando se lea un caracter distinto de 0-9 ou _
+        if (!isdigit(c) || c != '_') {
+            // Se é un float (123.)
+            if (c == '.') cl = _analizarFloatLiteral();
+
+            // Se é un float con expoñente (123e)
+            if (c == 'e' || c == 'E') _analizarFloatLiteral(); //! OLLO PARA OS EXPOÑENTES QUE NON SEI COMO FACELO AINDA
+            
+            // Se é un número enteiro
+            else {
+                devolver();
+                lexema = obtener_lexema();
+                cl = _empaquetarCompLexico(lexema, INT_LITERAL);
+            }
+            break;
+        }
+    }
+
+}
+
 // Analiza a parte decimal (despois do punto)
 CompLexico *_analizarFloatLiteral() {
-    int c;
+    char c;
     CompLexico *cl;
     
 
@@ -215,12 +243,21 @@ CompLexico *_analizarNum(char inicio) {
         
         // Se comeza por 1-9
         } else {
-            
+            cl = _analizarIntegerLiteral();
         }
 
     // Se comeza directamente polo punto
     } else if (inicio == '.') {
-        cl = _analizarFloatLiteral();
+        c = sig_char();
+        // Se se trata dun só punto
+        if (!isdigit(c)) {
+            cl = _empaquetarCompLexico(".", '.');
+        
+        // Se é un float
+        } else {
+            devolver();
+            cl = _analizarFloatLiteral();
+        }
     }
     return cl;
 }

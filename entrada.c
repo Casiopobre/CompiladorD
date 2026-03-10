@@ -133,6 +133,7 @@ int sig_char() {
         }
     } else if (*delantero == EOF && ignorarEOF) {
         delantero++;
+        ignorarEOF = 0;
     }
 
     return c;
