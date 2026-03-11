@@ -40,6 +40,7 @@ CompLexico* sigCompLexico() {
             } else {
                 compLexico = _empaquetarCompLexico(lexema, ID);
                 engadirEntradaTS(compLexico);
+                imprimirTS();
             }
             break;
 
@@ -69,6 +70,10 @@ CompLexico* sigCompLexico() {
                 if ((a = _analizarComentario()) == '/') {
                     lexema = obtener_lexema();
                     compLexico  =_empaquetarCompLexico(lexema, '/');
+                } else {
+                    // Para avanzar inicio
+                    lexema = obtener_lexema();
+                    return NULL;
                 }
 
                 break;
@@ -104,7 +109,9 @@ CompLexico *_empaquetarCompLexico(char *lexema, int id) {
 
     // Incluimos os valores que correspondan
     cl->id = id;
-    cl->lexema = lexema;
+    // Para que cada entrada da TS teña a súa propia copia
+    cl->lexema = strdup(lexema);
+    if (cl->lexema == NULL) { free(cl); return NULL; }
 
     return cl;
 }
@@ -195,7 +202,7 @@ CompLexico *_analizarFloatLiteral() {
                 if (c == 'E' || c == 'e') {
                     cl = _analizarExponente();
                     break;
-                    
+
                     // Se rematou o float
                 } else {
                     devolver();
