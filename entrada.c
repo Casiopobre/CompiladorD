@@ -78,7 +78,8 @@ void _cargar_bloque_A(){
         parBuffers[charLeidos] = EOF;
     }
 
-    printf("BLOQUE A: %s\n", parBuffers);
+    // !DEBUG
+    //printf("BLOQUE A: %s\n", parBuffers);
 }
 
 // Función para cargar o bloque B
@@ -96,7 +97,8 @@ void _cargar_bloque_B() {
         parBuffers[INI_BLOQUE_B + charLeidos] = EOF;
     }
 
-    printf("BLOQUE A: %s\n", parBuffers);
+    // !DEBUG
+    //printf("BLOQUE B: %s\n", parBuffers);
 }
 
 void _copiarParteLexema(){

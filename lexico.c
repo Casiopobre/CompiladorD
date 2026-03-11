@@ -20,6 +20,7 @@
 char *_analizarIdentificador();
 char *_analizarStringLiteral();
 char _analizarComentario();
+CompLexico *_analizarNum(char inicio);
 CompLexico *_empaquetarCompLexico(char *lexema, int id);
 
 CompLexico* sigCompLexico() {
@@ -66,7 +67,8 @@ CompLexico* sigCompLexico() {
                 char a;
                 // Se non era un comentario senon unha / de división, devolvémola
                 if ((a = _analizarComentario()) == '/') {
-                    compLexico  =_empaquetarCompLexico("/", '/');
+                    lexema = obtener_lexema();
+                    compLexico  =_empaquetarCompLexico(lexema, '/');
                 }
 
                 break;
@@ -74,8 +76,7 @@ CompLexico* sigCompLexico() {
             // Ignorar caarcteres
             case ' ': case '\n':
                 obtener_lexema();
-
-                break;
+                return NULL;
 
             // Por defecto para os tokens dun só caracter (., [, ], ...)
             default:
@@ -150,40 +151,101 @@ char *_analizarStringLiteral() {
 
 // Analise de números -------------------------------------------------------
 
+// Analiza a parte de expoñente dun numero (despois do E ou e) (son floats)
+CompLexico *_analizarExponente() {
+    char c, *lexema;
+    CompLexico *cl;
+
+    c = sig_char();
+    // Despois do E ou e poden aparecer +, -, _ ou 0-9
+    if (c == '+' || c == '-' || c == '_' || isdigit(c)) {
+        // Agora so poden aparecer 0-9 ou _
+        while (1) {
+            c = sig_char();
+            if (!isdigit(c) && c != '_') {
+                devolver();
+                lexema = obtener_lexema();
+                cl = _empaquetarCompLexico(lexema, FLOAT_LITERAL);
+                break;
+            }
+        }
+    }
+    return cl;
+}
+
+
+// Analiza a parte decimal (despois do punto)
+CompLexico *_analizarFloatLiteral() {
+    char c, *lexema;
+    CompLexico *cl;
+    c = sig_char();
+    
+    // Se non hai dixitos despois do punto (float tipo 123.)
+    if (!isdigit(c)) {
+        devolver();
+        lexema = obtener_lexema();
+        cl = _empaquetarCompLexico(lexema, FLOAT_LITERAL);
+        
+        // Se despois do punto hai polo menos un díxito, seguimos analizando
+    } else {
+        while (1) {
+            
+            // Cando lemos algo distinto de 0-9 ou _ comprobamos se é un expoñente
+            if (!isdigit(c) && c != '_') {
+                if (c == 'E' || c == 'e') {
+                    cl = _analizarExponente();
+                    break;
+                    
+                    // Se rematou o float
+                } else {
+                    devolver();
+                    lexema = obtener_lexema();
+                    cl = _empaquetarCompLexico(lexema, FLOAT_LITERAL);
+                    break;
+                }
+            }
+            c = sig_char();
+        }
+    }
+    
+    
+    return cl;
+}
+
 // Analiza secuencias con 0-9 e _ (DecimalDigitsUS na documentación de D)
 CompLexico *_analizarIntegerLiteral() {
     char c, *lexema;
     CompLexico *cl;
-
+    
     while (1) {
         c = sig_char();
 
-        // Cando se lea un caracter distinto de 0-9 ou _
-        if (!isdigit(c) || c != '_') {
-            // Se é un float (123.)
-            if (c == '.') cl = _analizarFloatLiteral();
+        while(isdigit(c) || c == '_') {
+            c = sig_char();
+        }
 
-            // Se é un float con expoñente (123e)
-            if (c == 'e' || c == 'E') _analizarFloatLiteral(); //! OLLO PARA OS EXPOÑENTES QUE NON SEI COMO FACELO AINDA
-            
-            // Se é un número enteiro
-            else {
-                devolver();
-                lexema = obtener_lexema();
-                cl = _empaquetarCompLexico(lexema, INT_LITERAL);
-            }
+        // Cando se lea un caracter distinto de 0-9 ou _
+        // Se é un float (123.)
+        if (c == '.') {
+            cl = _analizarFloatLiteral();
             break;
         }
+        
+        // Se é un float con expoñente (123e)
+        if (c == 'e' || c == 'E') {
+            cl = _analizarExponente();
+            break;
+        }
+        
+        // Se é un número enteiro
+        else {
+            devolver();
+            lexema = obtener_lexema();
+            cl = _empaquetarCompLexico(lexema, INT_LITERAL);
+        }
+        break;
+
     }
-
-}
-
-// Analiza a parte decimal (despois do punto)
-CompLexico *_analizarFloatLiteral() {
-    char c;
-    CompLexico *cl;
-    
-
 
     return cl;
 }
@@ -194,8 +256,9 @@ CompLexico *_analizarBinario() {
     CompLexico *cl;
     // Pode haber 0, 1 ou _
     while (1) {
+        c = sig_char();
         // Identificamos o numero binario
-        if ((c = sig_char()) != '0' || c != '1' || c != '_') {
+        if (c != '0' && c != '1' && c != '_') {
             // Como o automata recoñece en "outro", devolvemos o caracter
             devolver();
             lexema = obtener_lexema();
@@ -215,7 +278,7 @@ CompLexico *_analizarNum(char inicio) {
         // Se comeza por 0
         if (inicio == '0') {
             c = sig_char();
-            // Se é un numero binario
+            // Se é un numero binario (0b ou 0B)
             if (c == 'b' || c == 'B') {
                 cl = _analizarBinario();
 
@@ -239,6 +302,11 @@ CompLexico *_analizarNum(char inicio) {
                         break;
                     }
                 }
+            // Se é un 0 só
+            } else {
+                devolver();
+                lexema = obtener_lexema();
+                cl = _empaquetarCompLexico(lexema, INT_LITERAL);
             }
         
         // Se comeza por 1-9
@@ -249,14 +317,17 @@ CompLexico *_analizarNum(char inicio) {
     // Se comeza directamente polo punto
     } else if (inicio == '.') {
         c = sig_char();
-        // Se se trata dun só punto
-        if (!isdigit(c)) {
-            cl = _empaquetarCompLexico(".", '.');
-        
+
         // Se é un float
-        } else {
+        if (isdigit(c)) {
             devolver();
             cl = _analizarFloatLiteral();
+            
+        // Se se trata dun só punto
+        } else {
+            devolver();
+            lexema = obtener_lexema();
+            cl = _empaquetarCompLexico(lexema, '.');
         }
     }
     return cl;
