@@ -133,7 +133,7 @@ CompLexico* sigCompLexico() {
                     compLexico = _crear_comp_lexico(lexema, c);
                     break;
                 }
-                
+                break;
 
             // Por defecto para os tokens dun só caracter (., [, ], ...)
             default:

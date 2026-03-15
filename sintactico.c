@@ -11,11 +11,10 @@ void sintactico(){
         // pedimoslle compoñentes léxicos ao analizador lexico
         compLexico = sigCompLexico();
         if (compLexico != NULL ){
-            if (compLexico->id != FIN_FICHEIRO) {
-                printf("<%s, %d>\n", (*compLexico).lexema, (*compLexico).id);
-
+            printf("<%s, %d>\n", (*compLexico).lexema, (*compLexico).id);
+            
             // Se nos atopams co fin de ficheiro
-            } else {
+            if (compLexico->id == FIN_FICHEIRO) {
                 break;
             }
         }

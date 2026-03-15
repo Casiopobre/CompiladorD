@@ -36,6 +36,9 @@ int ignorarEOF;
 // Para marcar cando ignorar a entrada por estarse lendo un comentario
 int ignorandoEntrada;
 
+// Para marcar cando chegamos ao EOF do ficheiro (para non perder o último caracter)
+int arquivoEOF;
+
 // Contador para rexistrar o numero de liña (conta \n) para os erros
 int numLinea;
 
@@ -106,6 +109,9 @@ void iniciar_SE() {
     // Inicializamos a variable para non ignorar a entrada
     ignorandoEntrada = 0;
 
+    // Inicializamos EOF do ficheiro a 0
+    arquivoEOF = 0;
+
     // Iniciamos o numero de liña a 1
     numLinea = 1;
 }
@@ -121,6 +127,9 @@ void _copiarParteLexema(){
 
 // Función principal do sistema de entrada: devolve o seguinte caracter a ser procesado
 int sig_char() {
+    // Se xa chegamos ao EOF do ficheiro, devolvemos EOF
+    if (arquivoEOF) return EOF;
+
     // Obtemos o caracter ao que apunta delantero
     int c = (char) *delantero;
     
@@ -155,9 +164,9 @@ int sig_char() {
             _cargar_bloque_A();
             delantero = &(parBuffers[0]); // Colocamos delantero ao inicio do buffer
 
-        // Estamos no EOF do ficheiro
+        // Estamos no EOF do ficheiro: marcamos o flag pero devolvemos o último caracter lido
         } else {
-            return EOF;
+            arquivoEOF = 1;
         }
     
     // Se estamos ignorando o EOF porque devolver pasou por un centinela (para non machacar o seguinte bloque)
