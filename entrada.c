@@ -9,7 +9,7 @@
 #include "erros.h"
 
 //* Constantes para definir o tamaño do buffer (T_BUF refírese a cada buffer lóxico (bloques A e B)) */ 
-#define T_BUF 32
+#define T_BUF 64
 #define T_BUF_TOTAL 2*T_BUF
 #define INI_BLOQUE_B T_BUF+1
 
