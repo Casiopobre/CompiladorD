@@ -8,7 +8,6 @@ CFLAGS = -Wall
 # Localizamos os .c
 SRCS = main.c lexico.c entrada.c sintactico.c abb.c ts.c erros.c
 
-
 .PHONY: all clean run $(TARGET)
 
 all: $(TARGET)
