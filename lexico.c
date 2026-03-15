@@ -32,8 +32,10 @@ CompLexico* sigCompLexico() {
         if (isalpha(c) || c == '_'){
             lexema = _analizar_identificador();
 
-            // Se o lexema era demasiado longo, devolvemos NULL
-            if (lexema == NULL) return NULL;
+            // Se o lexema era demasiado longo, devolvemos NULL e continuamos
+            if (lexema == NULL) {
+                continue;  // Saltamos e intentamos co seguinte token
+            }
 
             // Comprobamos se o lexema xa esta na taboa de simbolos
             if (existeLexemaTS(lexema)) {
@@ -56,6 +58,10 @@ CompLexico* sigCompLexico() {
             // Comprobamos se é un string literal
             case '"':
                 lexema = _analizar_string_literal();
+
+                if (strcmp(lexema, "ERROR") == 0) {
+                    return NULL;
+                }
 
                 // Se nos atopamos un EOF polo medio (string literal non pechado)
                 if (lexema == NULL) {
@@ -85,13 +91,46 @@ CompLexico* sigCompLexico() {
 
                 break;
 
-            // Ignorar caarcteres
+            // Ignorar espacios e saltos de liñ
             case ' ': case '\n':
                 // Para que avance inicio
                 obtener_lexema();
                 return NULL;
 
-            // TODOPor defecto para os tokens dun só caracter (., [, ], ...)
+            case '=':
+                int d = sig_char();
+                if (d == '=') {
+                    lexema = obtener_lexema();
+                    compLexico = _crear_comp_lexico(lexema, IGUAL_IGUAL);
+                } else {
+                    devolver();
+                    lexema = obtener_lexema();
+                    compLexico = _crear_comp_lexico(lexema, c);
+                }
+                break;
+
+            case '+':
+                d = sig_char();
+                switch (d) {
+                case '=':
+                    lexema = obtener_lexema();
+                    compLexico = _crear_comp_lexico(lexema, MAIS_IGUAL);
+                    break;
+                
+                case '+':
+                    lexema = obtener_lexema();
+                    compLexico = _crear_comp_lexico(lexema, MAIS_MAIS);
+                    break;
+
+                default:
+                    devolver();
+                    lexema = obtener_lexema();
+                    compLexico = _crear_comp_lexico(lexema, c);
+                    break;
+                }
+                
+
+            // Por defecto para os tokens dun só caracter (., [, ], ...)
             default:
                 lexema = obtener_lexema();
                 compLexico = _crear_comp_lexico(lexema, c);
@@ -140,6 +179,11 @@ char *_analizar_identificador() {
         }
     }
     
+    // Se o lexema era demasiado longo, devolvemos NULL
+    if (lexema == NULL) {
+        return NULL;
+    }
+    
     return lexema;
 }
 
@@ -157,6 +201,7 @@ char *_analizar_string_literal() {
             c = sig_char();
         } else if (c == '"') {
             lexema = obtener_lexema();
+            if (lexema == NULL) lexema = "ERROR";
             break;
         } else if (c == EOF){
             return NULL;
@@ -364,8 +409,9 @@ void _analizarComentarioBloque() {
 void _analizarComentarioLina() {
     int c;
     while ((c = sig_char()) != EOF) {
-        if (c == '\n')
-        break;
+        if (c == '\n') {
+            break;
+        }
     }
 }
 

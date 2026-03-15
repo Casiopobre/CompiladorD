@@ -4,6 +4,7 @@
 #include "lexico.h"
 #include "abb.h"
 #include "definiciones.h"
+#include "cores.h"
 
 TABB taboaSimbolos;
 
@@ -52,7 +53,7 @@ void engadirEntradaTS(CompLexico *entrada){
 
 void liberarMemoriaTS() {
     eliminarAbb(&taboaSimbolos);
-    printf("Memoria da taboa de símbolos eliminada correctamente :)\n");
+    printf(BRIGHT_GREEN"Memoria da taboa de símbolos eliminada correctamente :)\n"RESET);
 }
 
 // Recorre a árbore de esquerda a dereita (inorde) imprimindo o contido dos nodos
@@ -72,7 +73,7 @@ void _recorrer_TS(TABB A){
 
 
 void imprimirTS() {
-    printf("~*~*~*~*~ Taboa de símbolos ~*~*~*~*~\n");
+    printf(BRIGHT_BLUE"~*~*~*~*~ Taboa de símbolos ~*~*~*~*~\n");
     _recorrer_TS(taboaSimbolos);
-    printf("~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~\n");
+    printf("~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~\n"RESET);
 }

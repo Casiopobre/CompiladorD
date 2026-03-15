@@ -8,7 +8,8 @@
 #include <string.h>
 #include "erros.h"
 
-#define T_BUF 40
+//* Constantes para definir o tamaño do buffer (T_BUF refírese a cada buffer lóxico (bloques A e B)) */ 
+#define T_BUF 32
 #define T_BUF_TOTAL 2*T_BUF
 #define INI_BLOQUE_B T_BUF+1
 
@@ -34,6 +35,9 @@ int ignorarEOF;
 
 // Para marcar cando ignorar a entrada por estarse lendo un comentario
 int ignorandoEntrada;
+
+// Contador para rexistrar o numero de liña (conta \n) para os erros
+int numLinea;
 
 
 // Función para cargar o bloque A
@@ -79,11 +83,6 @@ void _cargar_bloque_B() {
 // Función para iniciar o sistema de entrada
 void iniciar_SE() {
 
-    // Colocamos o primeiro centinela
-    parBuffers[T_BUF] = EOF;
-    // Colocamos o segundo centnela
-    parBuffers[T_BUF_TOTAL+1] = EOF;
-
     // Colocamos inicio e delantero apuntando ao principio do buffer
     inicio = &(parBuffers[0]);
     delantero = &(parBuffers[0]);
@@ -101,60 +100,81 @@ void iniciar_SE() {
     // Inicializamos a lonxitude do lexema a 0
     lenLexema = 0;
 
-    // Inicializamos para non ignorar os EOF
+    // Inicializamos a variable para non ignorar os EOF
     ignorarEOF = 0;
+
+    // Inicializamos a variable para non ignorar a entrada
+    ignorandoEntrada = 0;
+
+    // Iniciamos o numero de liña a 1
+    numLinea = 1;
 }
 
+// Función para copiar a parte do lexema lido ao cambiar de bloque
 void _copiarParteLexema(){
     // Copiamos a parte do lexema que corresponda
     memcpy(parteLexema, inicio, lenLexema);
-    // Poñemos o terminador de string
+    // Poñemos o terminador de string para que funcione despois o strlen
     parteLexema[lenLexema] = '\0';
 }
 
-// Función que devolve o seguinte caracter a ser procesado
+
+// Función principal do sistema de entrada: devolve o seguinte caracter a ser procesado
 int sig_char() {
+    // Obtemos o caracter ao que apunta delantero
     int c = (char) *delantero;
+    
+    // Contamos saltos de liña
+    if (c == '\n') {
+        numLinea++;
+    }
+    
+    // Avanzamos delantero e aumentamos a lonxitude do lexema 
     delantero++;
     lenLexema++;
 
     // Se o tamaño do lexema excede o tamaño do bloque
     if (lenLexema > T_BUF && !ignorandoEntrada) {
-        xestionarErro(MAX_LEX_LEN);
         ignorandoEntrada = 1;
+        xestionarErro(MAX_LEX_LEN_ERR, numLinea, T_BUF);
     }
 
     // Se nos atopamos cun EOF, hai que comprobar en que caso estamos
     if (*delantero == EOF && !ignorarEOF) {
         // Estamos no EOF do bloque A
         if (delantero == &(parBuffers[T_BUF])){
-            // Gardamos a parte de lexema xa lida antes de cambiar de bloque (só se non está en modo erro)
+            // Gardamos a parte de lexema xa lida antes de cambiar de bloque (se non estamos ignorando a entrada)
             if (!ignorandoEntrada) _copiarParteLexema();
             _cargar_bloque_B();
             delantero++;
 
         // Estamos no EOF do bloque B
         } else if (delantero == &(parBuffers[T_BUF_TOTAL+1])) {
-            // Gardamos a parte de lexema xa lida antes de cambiar de bloque (só se non está en modo erro)
+            // Gardamos a parte de lexema xa lida antes de cambiar de bloque (se non estamos ignorando a entrada)
             if (!ignorandoEntrada) _copiarParteLexema();
             _cargar_bloque_A();
-            delantero = &(parBuffers[0]);
+            delantero = &(parBuffers[0]); // Colocamos delantero ao inicio do buffer
 
         // Estamos no EOF do ficheiro
         } else {
             return EOF;
         }
+    
+    // Se estamos ignorando o EOF porque devolver pasou por un centinela (para non machacar o seguinte bloque)
     } else if (*delantero == EOF && ignorarEOF) {
         delantero++;
+        // Deixamos de ignorar o EOF
         ignorarEOF = 0;
     }
 
     return c;
 }
 
+
 // Devolve o lexema actual (comprendido entre inicio e delantero)
 char *obtener_lexema() {
-    // Se o lexema era demasiado longo, reseteamos o estado sen copiar nada
+
+    // Se o lexema era demasiado longo (erro), reseteamos sen copiar nada
     if (ignorandoEntrada) {
         lenLexema = 0;
         parteLexema[0] = '\0';
@@ -162,11 +182,12 @@ char *obtener_lexema() {
         ignorandoEntrada = 0;
         return NULL;
     }
+
     // Comprobamos a lonxitude da parte do lexema xa gardada (se está entre dous bloques)
-    int len = strlen(parteLexema);
+    int lenParteLex = strlen(parteLexema);
 
     // Se o lexema está nun só bloque
-    if (len == 0){
+    if (lenParteLex == 0){
         memcpy(lexemaActual, inicio, delantero-inicio);
         lexemaActual[lenLexema] = '\0';
         // Reiniciamos lenLExema
@@ -177,38 +198,45 @@ char *obtener_lexema() {
 
     // Se o lexema está en dous bloques
     } else {
-        // Se inicio + len == EOF
-        if (inicio+len == &(parBuffers[T_BUF_TOTAL+1])) {
-            memcpy(parteLexema+len, &(parBuffers[0]), lenLexema - len);
+        // Se o lexema comeza no bloque B e remata no bloque A
+        if (inicio+lenParteLex == &(parBuffers[T_BUF_TOTAL+1])) {
+            // Copiamos dende o inicio do bloque A a lonxitude que lle quede por copiar ao lexema
+            memcpy(parteLexema+lenParteLex, &(parBuffers[0]), lenLexema-lenParteLex);
+
+        // Se comeza no A e remata no B
         } else {
-            memcpy(parteLexema+len, inicio+len+1, lenLexema-len);
+            // Copiamos dende o inicio do bloque B ata a lonxitude que lle falte ao lexema por copiar
+            memcpy(parteLexema+lenParteLex, inicio+lenParteLex+1, lenLexema-lenParteLex);
         }
     }
 
-    // Rematamos o lexema en \0
+    // Rematamos o lexema en \0 (para crear un "string valido")
     parteLexema[lenLexema] = '\0';
 
-    // Reiniciamos lenLexema e parteLexema, e copiamos resultado a lexemaActual
+    // Ccopiamos o resultado a lexemaActual e reiniciamos lenLexema e parteLexema
     memcpy(lexemaActual, parteLexema, lenLexema + 1);
     lenLexema = 0;
     parteLexema[0] = '\0';
 
-    // Avanzamos inicio
+    // Avanzamos inicio á posición de delantero
     inicio = delantero;
 
     return lexemaActual;
 }
 
 void devolver() {
+    // Decrementamos delantero
     delantero--;
     lenLexema--;
+    // Se xusto delantero cae nun centinela, decrementámolo outra vez e entramos nun estado de ignorar o EOF (centinela)
     if (*delantero == EOF) {
         delantero--;
         ignorarEOF = 1;
     }
 
-    int len = strlen(parteLexema);
-    if (len > lenLexema) {
+    // Se o lexema está en máis dun bloque, se ao retroceder a lonxitude do lexema gardada é menor á da parte do lexema, truncamolo
+    int lenParteLex = strlen(parteLexema);
+    if (lenParteLex > lenLexema) {
         parteLexema[lenLexema] = '\0';
     }
 }

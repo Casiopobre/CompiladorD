@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "lexico.h"
 #include "definiciones.h"
+#include "cores.h"
 
 void sintactico(){
     CompLexico *compLexico;
@@ -16,5 +17,5 @@ void sintactico(){
             }
         }
     }
-    printf("Analise lexica rematada!\n");
+    printf(BRIGHT_GREEN"Analise lexica rematada!\n"RESET);
 }

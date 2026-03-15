@@ -17,6 +17,10 @@
 #define INT_LITERAL 310     // Tamen inclúe os entriros binarios (0b...)
 #define FLOAT_LITERAL 311
 
+#define IGUAL_IGUAL 312
+#define MAIS_IGUAL 313
+#define MAIS_MAIS 314
+
 #define FIN_FICHEIRO 333
 
 #endif //DEFINICIONES_H
