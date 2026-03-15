@@ -11,17 +11,13 @@
 #include "entrada.h"
 #include "ts.h"
 
-/*TODO
-* Comprobar lóxica ao inserir na ts (facer algo como que comprobe e insira)
-* Revisar as funcións da ts
-* CAndo chega ao bloque B, se ralla e nn da lido ben
-*/
+// Declaración de funcións
+char *_analizar_identificador();
+char *_analizar_string_literal();
+char _analizar_comentario();
+CompLexico *_analizar_num(char inicio);
+CompLexico *_crear_comp_lexico(char *lexema, int id);
 
-char *_analizarIdentificador();
-char *_analizarStringLiteral();
-char _analizarComentario();
-CompLexico *_analizarNum(char inicio);
-CompLexico *_empaquetarCompLexico(char *lexema, int id);
 
 CompLexico* sigCompLexico() {
     // Variables
@@ -29,37 +25,46 @@ CompLexico* sigCompLexico() {
     int c;
     CompLexico *compLexico;
     
-    // Lemos o codigo fonte caracter a caracter
+    // Imoslle pedindo caracteres ao sistema de entrada
     while ((c = sig_char()) != EOF) {
+
         // Comprobamos se é un identificador 
         if (isalpha(c) || c == '_'){
-            lexema = _analizarIdentificador();
+            lexema = _analizar_identificador();
 
+            // Se o lexema era demasiado longo, devolvemos NULL
+            if (lexema == NULL) return NULL;
+
+            // Comprobamos se o lexema xa esta na taboa de simbolos
             if (existeLexemaTS(lexema)) {
                 compLexico = buscarLexemaTS(lexema);
+
+            // Se o lexema non esta na ts, creamolo e o engadimos 
             } else {
-                compLexico = _empaquetarCompLexico(lexema, ID);
+                compLexico = _crear_comp_lexico(lexema, ID);
                 engadirEntradaTS(compLexico);
-                imprimirTS();
             }
             break;
 
-        //TODO Números
+        // Comprobamos se é un numero
         } else if (isdigit(c) || c == '.'){
-            compLexico = _analizarNum(c);
+            compLexico = _analizar_num(c);
             break;
 
         } else {
             switch (c) {
             // Comprobamos se é un string literal
             case '"':
-                lexema = _analizarStringLiteral();
+                lexema = _analizar_string_literal();
+
+                // Se nos atopamos un EOF polo medio (string literal non pechado)
                 if (lexema == NULL) {
-                    compLexico = _empaquetarCompLexico("END OF FILE", FIN_FICHEIRO);
+                    compLexico = _crear_comp_lexico("END OF FILE", FIN_FICHEIRO);
                     break;
                 }
 
-                compLexico = _empaquetarCompLexico(lexema, STR_LITERAL);
+                // Devolvemos o string literal
+                compLexico = _crear_comp_lexico(lexema, STR_LITERAL);
 
                 break;
             
@@ -67,11 +72,13 @@ CompLexico* sigCompLexico() {
             case '/':
                 char a;
                 // Se non era un comentario senon unha / de división, devolvémola
-                if ((a = _analizarComentario()) == '/') {
+                if ((a = _analizar_comentario()) == '/') {
                     lexema = obtener_lexema();
-                    compLexico  =_empaquetarCompLexico(lexema, '/');
+                    compLexico  =_crear_comp_lexico(lexema, '/');
+
+                // Se si que era un comentario, ignoramolo
                 } else {
-                    // Para avanzar inicio
+                    // Para avanzar inicio e que non quede por detras
                     lexema = obtener_lexema();
                     return NULL;
                 }
@@ -80,13 +87,14 @@ CompLexico* sigCompLexico() {
 
             // Ignorar caarcteres
             case ' ': case '\n':
+                // Para que avance inicio
                 obtener_lexema();
                 return NULL;
 
-            // Por defecto para os tokens dun só caracter (., [, ], ...)
+            // TODOPor defecto para os tokens dun só caracter (., [, ], ...)
             default:
                 lexema = obtener_lexema();
-                compLexico = _empaquetarCompLexico(lexema, c);
+                compLexico = _crear_comp_lexico(lexema, c);
 
                 break;
             }
@@ -94,30 +102,31 @@ CompLexico* sigCompLexico() {
         }
     }
 
+    // Se nos atopamos o EOF do codigo fonte
     if (c == EOF){
-        compLexico = _empaquetarCompLexico("END OF FILE", FIN_FICHEIRO);
+        compLexico = _crear_comp_lexico("END OF FILE", FIN_FICHEIRO);
     }
-    
+
     return compLexico;
 }
 
-
-CompLexico *_empaquetarCompLexico(char *lexema, int id) {
+// Funcion auxiliar que crea unha compoñente lexica a partires dun lexema e un id
+CompLexico *_crear_comp_lexico(char *lexema, int id) {
     // Reserva de memoria
     CompLexico *cl = (CompLexico*) malloc(sizeof(CompLexico));
     if (cl == NULL) return NULL;
 
     // Incluimos os valores que correspondan
     cl->id = id;
+
     // Para que cada entrada da TS teña a súa propia copia
     cl->lexema = strdup(lexema);
-    if (cl->lexema == NULL) { free(cl); return NULL; }
 
     return cl;
 }
 
 
-char *_analizarIdentificador() {
+char *_analizar_identificador() {
     char c, *lexema;
 
     while (1){
@@ -136,7 +145,7 @@ char *_analizarIdentificador() {
 
 
 // Analiza string literals da forma "loquesea"
-char *_analizarStringLiteral() {
+char *_analizar_string_literal() {
     int c;
     char *lexema;
     while (1) {
@@ -172,7 +181,7 @@ CompLexico *_analizarExponente() {
             if (!isdigit(c) && c != '_') {
                 devolver();
                 lexema = obtener_lexema();
-                cl = _empaquetarCompLexico(lexema, FLOAT_LITERAL);
+                cl = _crear_comp_lexico(lexema, FLOAT_LITERAL);
                 break;
             }
         }
@@ -191,7 +200,7 @@ CompLexico *_analizarFloatLiteral() {
     if (!isdigit(c)) {
         devolver();
         lexema = obtener_lexema();
-        cl = _empaquetarCompLexico(lexema, FLOAT_LITERAL);
+        cl = _crear_comp_lexico(lexema, FLOAT_LITERAL);
         
         // Se despois do punto hai polo menos un díxito, seguimos analizando
     } else {
@@ -207,7 +216,7 @@ CompLexico *_analizarFloatLiteral() {
                 } else {
                     devolver();
                     lexema = obtener_lexema();
-                    cl = _empaquetarCompLexico(lexema, FLOAT_LITERAL);
+                    cl = _crear_comp_lexico(lexema, FLOAT_LITERAL);
                     break;
                 }
             }
@@ -248,7 +257,7 @@ CompLexico *_analizarIntegerLiteral() {
         else {
             devolver();
             lexema = obtener_lexema();
-            cl = _empaquetarCompLexico(lexema, INT_LITERAL);
+            cl = _crear_comp_lexico(lexema, INT_LITERAL);
         }
         break;
 
@@ -269,7 +278,7 @@ CompLexico *_analizarBinario() {
             // Como o automata recoñece en "outro", devolvemos o caracter
             devolver();
             lexema = obtener_lexema();
-            cl = _empaquetarCompLexico(lexema, INT_LITERAL);
+            cl = _crear_comp_lexico(lexema, INT_LITERAL);
             break;
         }
     }
@@ -277,7 +286,7 @@ CompLexico *_analizarBinario() {
 }
 
 // Analiza numeros
-CompLexico *_analizarNum(char inicio) {
+CompLexico *_analizar_num(char inicio) {
     char c, *lexema;
     CompLexico *cl = NULL;
 
@@ -300,7 +309,7 @@ CompLexico *_analizarNum(char inicio) {
                     if (c != '_') {
                         devolver();
                         lexema = obtener_lexema();
-                        cl = _empaquetarCompLexico(lexema, INT_LITERAL);
+                        cl = _crear_comp_lexico(lexema, INT_LITERAL);
                         break;
                     
                     // Se é un decimal (0_.)
@@ -313,7 +322,7 @@ CompLexico *_analizarNum(char inicio) {
             } else {
                 devolver();
                 lexema = obtener_lexema();
-                cl = _empaquetarCompLexico(lexema, INT_LITERAL);
+                cl = _crear_comp_lexico(lexema, INT_LITERAL);
             }
         
         // Se comeza por 1-9
@@ -334,7 +343,7 @@ CompLexico *_analizarNum(char inicio) {
         } else {
             devolver();
             lexema = obtener_lexema();
-            cl = _empaquetarCompLexico(lexema, '.');
+            cl = _crear_comp_lexico(lexema, '.');
         }
     }
     return cl;
@@ -383,7 +392,9 @@ void _analizarComentarioAnidado() {
 }
 
 
-char _analizarComentario() {
+char _analizar_comentario() {
+    ignorarEntrada(1);
+
     int c = sig_char();
     switch (c) {
 
@@ -401,6 +412,7 @@ char _analizarComentario() {
 
         // Caracter de división
         default:
+        ignorarEntrada(0);
         devolver();
         return '/';
     }

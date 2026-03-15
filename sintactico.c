@@ -6,10 +6,6 @@
 void sintactico(){
     CompLexico *compLexico;
 
-    //compLexico = sigCompLexico();
-    //printf("<%s, %d>\n", (*compLexico).lexema, (*compLexico).id);
-
-    //? Cambiar por un do while(???
     while (1) {
         compLexico = sigCompLexico();
         if (compLexico != NULL ){

@@ -10,4 +10,6 @@ char *obtener_lexema();
 
 void devolver();
 
+void ignorarEntrada(int deboIgnorar);
+
 #endif // ENTRADA_H

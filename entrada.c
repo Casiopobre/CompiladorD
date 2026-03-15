@@ -6,8 +6,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include "erros.h"
 
-#define T_BUF 2048
+#define T_BUF 40
 #define T_BUF_TOTAL 2*T_BUF
 #define INI_BLOQUE_B T_BUF+1
 
@@ -31,12 +32,53 @@ char lexemaActual[T_BUF+1];
 // Para marcar cando teño que ignorar o eof
 int ignorarEOF;
 
-// Declaración de funcións:
-void _cargar_bloque_A();
+// Para marcar cando ignorar a entrada por estarse lendo un comentario
+int ignorandoEntrada;
 
+
+// Función para cargar o bloque A
+void _cargar_bloque_A(){
+    // Lemos os caracteres suficientes para encher o buffer do bloque A
+    size_t charLeidos = fread(&parBuffers[0], sizeof(char), T_BUF, fd);
+
+    if (charLeidos == 0) {
+        perror ("Erro ao cargar o bloque A :(\n");
+        return;
+    }
+
+    // Se se cargaron menos carateres que o tamaño dun bloque, colocamos o centinela ao final destes
+    if (charLeidos < T_BUF) {
+        parBuffers[charLeidos] = EOF;
+
+    // Colocamos o centinela ao final do bloque A
+    } else {
+        parBuffers[T_BUF] = EOF;
+    }
+}
+
+// Función para cargar o bloque B
+void _cargar_bloque_B() {
+    // Lemos os caracteres suficientes para encher o buffer do bloque B
+    size_t charLeidos = fread(&parBuffers[INI_BLOQUE_B], sizeof(char), T_BUF, fd);
+
+    if (charLeidos == 0) {
+        perror ("Erro ao cargar o bloque B :(\n");
+        return;
+    }
+
+    // Se se cargaron menos carateres que o tamaño dun bloque, colocamos o centinela ao final
+    if (charLeidos < T_BUF) {
+        parBuffers[INI_BLOQUE_B + charLeidos] = EOF;
+
+    // Colocamos o centinela ao final do bloque B
+    } else {
+        parBuffers[T_BUF_TOTAL+1] = EOF;
+    }
+}
 
 // Función para iniciar o sistema de entrada
 void iniciar_SE() {
+
     // Colocamos o primeiro centinela
     parBuffers[T_BUF] = EOF;
     // Colocamos o segundo centnela
@@ -63,44 +105,6 @@ void iniciar_SE() {
     ignorarEOF = 0;
 }
 
-// Función para cargar o bloque A
-void _cargar_bloque_A(){
-    // Lemos os caracteres suficientes para encher o buffer do bloque A
-    size_t charLeidos = fread(&parBuffers[0], sizeof(char), T_BUF, fd);
-
-    if (charLeidos == 0) {
-        perror ("Erro ao cargar o bloque B :(\n");
-        return;
-    }
-
-    // Se se cargaron menos carateres que o tamaño dun bloque, colocamos o centinela ao final
-    if (charLeidos < T_BUF) {
-        parBuffers[charLeidos] = EOF;
-    }
-
-    // !DEBUG
-    //printf("BLOQUE A: %s\n", parBuffers);
-}
-
-// Función para cargar o bloque B
-void _cargar_bloque_B() {
-    // Lemos os caracteres suficientes para encher o buffer do bloque B
-    size_t charLeidos = fread(&parBuffers[0], sizeof(char), T_BUF, fd);
-
-    if (charLeidos == 0) {
-        perror ("Erro ao cargar o bloque B :(\n");
-        return;
-    }
-
-    // Se se cargaron menos carateres que o tamaño dun bloque, colocamos o centinela ao final
-    if (charLeidos < T_BUF) {
-        parBuffers[INI_BLOQUE_B + charLeidos] = EOF;
-    }
-
-    // !DEBUG
-    //printf("BLOQUE B: %s\n", parBuffers);
-}
-
 void _copiarParteLexema(){
     // Copiamos a parte do lexema que corresponda
     memcpy(parteLexema, inicio, lenLexema);
@@ -113,19 +117,26 @@ int sig_char() {
     int c = (char) *delantero;
     delantero++;
     lenLexema++;
+
+    // Se o tamaño do lexema excede o tamaño do bloque
+    if (lenLexema > T_BUF && !ignorandoEntrada) {
+        xestionarErro(MAX_LEX_LEN);
+        ignorandoEntrada = 1;
+    }
+
     // Se nos atopamos cun EOF, hai que comprobar en que caso estamos
     if (*delantero == EOF && !ignorarEOF) {
         // Estamos no EOF do bloque A
         if (delantero == &(parBuffers[T_BUF])){
-            // Gardamos a parte de lexema xa lida antes de cambiar de bloque
-            _copiarParteLexema();
+            // Gardamos a parte de lexema xa lida antes de cambiar de bloque (só se non está en modo erro)
+            if (!ignorandoEntrada) _copiarParteLexema();
             _cargar_bloque_B();
             delantero++;
 
         // Estamos no EOF do bloque B
         } else if (delantero == &(parBuffers[T_BUF_TOTAL+1])) {
-            // Gardamos a parte de lexema xa lida antes de cambiar de bloque
-            _copiarParteLexema();
+            // Gardamos a parte de lexema xa lida antes de cambiar de bloque (só se non está en modo erro)
+            if (!ignorandoEntrada) _copiarParteLexema();
             _cargar_bloque_A();
             delantero = &(parBuffers[0]);
 
@@ -143,6 +154,14 @@ int sig_char() {
 
 // Devolve o lexema actual (comprendido entre inicio e delantero)
 char *obtener_lexema() {
+    // Se o lexema era demasiado longo, reseteamos o estado sen copiar nada
+    if (ignorandoEntrada) {
+        lenLexema = 0;
+        parteLexema[0] = '\0';
+        inicio = delantero;
+        ignorandoEntrada = 0;
+        return NULL;
+    }
     // Comprobamos a lonxitude da parte do lexema xa gardada (se está entre dous bloques)
     int len = strlen(parteLexema);
 
@@ -156,22 +175,28 @@ char *obtener_lexema() {
         inicio = delantero;
         return lexemaActual;
 
-    // Se o lexema está en dous bloques (inicio+len+1 para que non copie o centinela)
+    // Se o lexema está en dous bloques
     } else {
-        memcpy(parteLexema+len, inicio+len+1, lenLexema-len);
+        // Se inicio + len == EOF
+        if (inicio+len == &(parBuffers[T_BUF_TOTAL+1])) {
+            memcpy(parteLexema+len, &(parBuffers[0]), lenLexema - len);
+        } else {
+            memcpy(parteLexema+len, inicio+len+1, lenLexema-len);
+        }
     }
 
     // Rematamos o lexema en \0
-    parteLexema[lenLexema]  ='\0';
+    parteLexema[lenLexema] = '\0';
 
-    // Reiniciamos lenLExema
+    // Reiniciamos lenLexema e parteLexema, e copiamos resultado a lexemaActual
+    memcpy(lexemaActual, parteLexema, lenLexema + 1);
     lenLexema = 0;
     parteLexema[0] = '\0';
 
     // Avanzamos inicio
     inicio = delantero;
 
-    return parteLexema;
+    return lexemaActual;
 }
 
 void devolver() {
@@ -179,7 +204,16 @@ void devolver() {
     lenLexema--;
     if (*delantero == EOF) {
         delantero--;
-        lenLexema--;
         ignorarEOF = 1;
     }
+
+    int len = strlen(parteLexema);
+    if (len > lenLexema) {
+        parteLexema[lenLexema] = '\0';
+    }
+}
+
+// Función que lle di a entrada que ignore os caracteres para non dar erro de max length cando se lea un comentario.
+void ignorarEntrada(int deboIgnorar) {
+    ignorandoEntrada = deboIgnorar;
 }
