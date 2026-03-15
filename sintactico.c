@@ -8,14 +8,19 @@ void sintactico(){
     CompLexico *compLexico;
 
     while (1) {
+        // pedimoslle compoñentes léxicos ao analizador lexico
         compLexico = sigCompLexico();
         if (compLexico != NULL ){
             if (compLexico->id != FIN_FICHEIRO) {
                 printf("<%s, %d>\n", (*compLexico).lexema, (*compLexico).id);
+
+            // Se nos atopams co fin de ficheiro
             } else {
                 break;
             }
         }
     }
-    printf(BRIGHT_GREEN"Analise lexica rematada!\n"RESET);
+
+    // Mensasxe para indicar que rematou a analise lexica
+    printf(BRIGHT_GREEN"\nAnalise lexica rematada! :)\n\n"RESET);
 }

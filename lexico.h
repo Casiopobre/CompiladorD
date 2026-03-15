@@ -7,7 +7,11 @@ typedef struct {
     int id;
 } CompLexico;
 
-// Devolve a seguinte compoñente lexica
+
+/**
+ * Devolve a seguinte compoñente lexica
+ * @returns A seguinte compoñente léxica identificada no codigo fonte
+ */
 CompLexico *sigCompLexico();
 
 

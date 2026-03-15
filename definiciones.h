@@ -2,7 +2,7 @@
 #define DEFINICIONES_H
 
 // Comezo keywords
-#define IMPORT 300          // <300, "import">
+#define IMPORT 300
 #define DOUBLE 301
 #define WHILE 302
 #define FOREACH 303
@@ -12,7 +12,7 @@
 #define INT 307
 // Fin keywords
 
-#define ID 308              //<308, "std">; <308, "stdio">
+#define ID 308              //<308, "std">; <308, "stdio"> ...
 #define STR_LITERAL 309
 #define INT_LITERAL 310     // Tamen inclúe os entriros binarios (0b...)
 #define FLOAT_LITERAL 311

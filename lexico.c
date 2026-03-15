@@ -91,17 +91,20 @@ CompLexico* sigCompLexico() {
 
                 break;
 
-            // Ignorar espacios e saltos de liñ
+            // Ignorar espacios e saltos de liña
             case ' ': case '\n':
                 // Para que avance inicio
                 obtener_lexema();
                 return NULL;
 
+            // Comprobamos se é un == ou un =
             case '=':
                 int d = sig_char();
                 if (d == '=') {
                     lexema = obtener_lexema();
                     compLexico = _crear_comp_lexico(lexema, IGUAL_IGUAL);
+
+                // Se só era un =
                 } else {
                     devolver();
                     lexema = obtener_lexema();
@@ -109,6 +112,7 @@ CompLexico* sigCompLexico() {
                 }
                 break;
 
+            // Comporbamos se é un +=, ++ ou +
             case '+':
                 d = sig_char();
                 switch (d) {
@@ -122,6 +126,7 @@ CompLexico* sigCompLexico() {
                     compLexico = _crear_comp_lexico(lexema, MAIS_MAIS);
                     break;
 
+                // Se só era un +
                 default:
                     devolver();
                     lexema = obtener_lexema();
@@ -164,7 +169,7 @@ CompLexico *_crear_comp_lexico(char *lexema, int id) {
     return cl;
 }
 
-
+// Autómata de identificadores
 char *_analizar_identificador() {
     char c, *lexema;
 
@@ -330,7 +335,7 @@ CompLexico *_analizarBinario() {
     return cl;
 }
 
-// Analiza numeros
+// Analiza numeros en xeral
 CompLexico *_analizar_num(char inicio) {
     char c, *lexema;
     CompLexico *cl = NULL;
@@ -394,8 +399,10 @@ CompLexico *_analizar_num(char inicio) {
     return cl;
 }
 
+
 // Analise de comentarios -------------------------------------------------------
 
+// Automata de comentarios de bloque
 void _analizarComentarioBloque() {
     int c;
     while ((c = sig_char()) != EOF) {
@@ -406,6 +413,7 @@ void _analizarComentarioBloque() {
     }
 }
 
+// Automata de comentarios de liña
 void _analizarComentarioLina() {
     int c;
     while ((c = sig_char()) != EOF) {
@@ -415,6 +423,7 @@ void _analizarComentarioLina() {
     }
 }
 
+// Automata de comentarios anidados
 void _analizarComentarioAnidado() {
     int c;
     // Contamos os '/+' que hai (os metemos nunha pila)
@@ -437,8 +446,10 @@ void _analizarComentarioAnidado() {
     
 }
 
-
+// Autómata xeral de comentarios
 char _analizar_comentario() {
+
+    // Os comentarios son ignoraods polo compialdor
     ignorarEntrada(1);
 
     int c = sig_char();
@@ -456,12 +467,13 @@ char _analizar_comentario() {
         _analizarComentarioAnidado();
         break;
 
-        // Caracter de división
+        // Se so era un caracter de división e non un comentario
         default:
         ignorarEntrada(0);
         devolver();
         return '/';
     }
 
+    // Significa que limos un comentario
     return '\0';
 }

@@ -6,6 +6,7 @@
 #include "definiciones.h"
 #include "cores.h"
 
+// Variable global para a taboa de simbolos
 TABB taboaSimbolos;
 
 

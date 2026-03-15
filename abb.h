@@ -46,14 +46,39 @@ void insertarEntrada(TABB *A, TIPOELEM E);
  */
 void buscarNodo(TABB A, TCLAVE clave, TIPOELEM *nodo);
 
+/**
+ * Lee o elemento almacenado na raíz da árbore.
+ * @param A Árbore binaria.
+ * @param E Punteiro onde se almacenará o elemento lido.
+ */
 void leerElementoAbb(TABB A, TIPOELEM *E);
 
+/**
+ * Devolve a subárbore esquerda da árbore A.
+ * @param A Árbore binaria.
+ * @return A subárbore esquerda.
+ */
 TABB izqAbb(TABB A);
 
+/**
+ * Devolve a subárbore dereita da árbore A.
+ * @param A Árbore binaria.
+ * @return A subárbore dereita.
+ */
 TABB derAbb(TABB A);
 
+/**
+ * Comproba se un elemento forma parte da árbore.
+ * @param A Árbore binaria.
+ * @param E Elemento a buscar.
+ * @return 1 se o elemento está na árbore, 0 en outro caso.
+ */
 unsigned esMiembroAbb(TABB A, TIPOELEM E);
 
+/**
+ * Elimina completamente a árbore, liberando toda a memoria.
+ * @param A Punteiro á árbore que se quere eliminar.
+ */
 void eliminarAbb(TABB *A);
 
 #endif //ABB_H

@@ -115,8 +115,6 @@ unsigned _es_miembro_clave(TABB A, TCLAVE cl) {
     return _es_miembro_clave(izqAbb(A), cl);
 }
 
-//Funciones públicas
-
 unsigned esMiembroAbb(TABB A, TIPOELEM E) {
     return _es_miembro_clave(A, _claveElem(&E));
 }

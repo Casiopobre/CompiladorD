@@ -9,11 +9,13 @@ void iniciar_SE();
 /**
  * Función que devolve o seginte caracter a ser lido polo sistema de entrada
  * Está declarada cmo int para xestionar os EOF (-1)
+ * @returns O caracter lido polo sistema de entrada
  */
 int sig_char();
 
 /**
  * Función que devolve o lexema actual (dende inicio ata delantero)
+ * @returns Un punteiro ao lexema actual
  */
 char *obtener_lexema();
 
