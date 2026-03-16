@@ -47,6 +47,15 @@ void insertarEntrada(TABB *A, TIPOELEM E);
 void buscarNodo(TABB A, TCLAVE clave, TIPOELEM *nodo);
 
 /**
+ * Busca un nodo con clave <cl> en el arbol y devuelve un puntero
+ * directamente al elemento encontrado (sin copiar).
+ * @param A Arbol binario en el que se busca el nodo.
+ * @param cl Clave que se buscara.
+ * @return Puntero al elemento encontrado, o NULL si no existe.
+ */
+TIPOELEM* buscarNodoPtr(TABB A, TCLAVE clave);
+
+/**
  * Lee o elemento almacenado na raíz da árbore.
  * @param A Árbore binaria.
  * @param E Punteiro onde se almacenará o elemento lido.

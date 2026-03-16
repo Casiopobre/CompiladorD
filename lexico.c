@@ -43,8 +43,11 @@ CompLexico* sigCompLexico() {
 
             // Se o lexema non esta na ts, creamolo e o engadimos 
             } else {
-                compLexico = _crear_comp_lexico(lexema, ID);
-                engadirEntradaTS(compLexico);
+                // FAcer unha copia temporal pq senon da leak de memoria non sei solucionalo doutra forma :(
+                CompLexico *compLexicoTmp = _crear_comp_lexico(lexema, ID);
+                engadirEntradaTS(compLexicoTmp);
+                free(compLexicoTmp);
+                compLexico = buscarLexemaTS(lexema);
             }
             break;
 

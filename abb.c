@@ -87,6 +87,20 @@ void buscarNodo(TABB A, TCLAVE clave, TIPOELEM *nodo) {
     }
 }
 
+// Busca un nodo y devuelve un puntero directo al elemento (sin copiar)
+TIPOELEM* buscarNodoPtr(TABB A, TCLAVE clave) {
+    if (esAbbVacio(A)) return NULL;
+
+    int comp = _compararClaveElem(clave, A->entradaTS);
+    if (comp == 0) {
+        return &(A->entradaTS);
+    } else if (comp < 0) {
+        return buscarNodoPtr(A->izq, clave);
+    } else {
+        return buscarNodoPtr(A->der, clave);
+    }
+}
+
 void leerElementoAbb(TABB A, TIPOELEM *E) {
     *E = A->entradaTS;
 }

@@ -15,8 +15,17 @@ void sintactico(){
             
             // Se nos atopams co fin de ficheiro
             if (compLexico->id == FIN_FICHEIRO) {
+                free(compLexico->lexema);
+                free(compLexico);
                 break;
             }
+            
+            // Liberar memoria agora, agás para as palabras reservadas (300-307) e os identificadores, que se liberan despois
+            if (compLexico->id < 300 || compLexico->id > 308) {
+                free(compLexico->lexema);
+                free(compLexico);
+            }
+
         }
     }
 

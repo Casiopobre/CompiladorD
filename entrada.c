@@ -128,7 +128,10 @@ void _copiarParteLexema(){
 // Función principal do sistema de entrada: devolve o seguinte caracter a ser procesado
 int sig_char() {
     // Se xa chegamos ao EOF do ficheiro, devolvemos EOF
-    if (arquivoEOF) return EOF;
+    if (arquivoEOF){
+        fclose(fd);
+        return EOF;
+    } 
 
     // Obtemos o caracter ao que apunta delantero
     int c = (char) *delantero;

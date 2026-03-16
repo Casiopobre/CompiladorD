@@ -32,11 +32,7 @@ void inicializarTS(){
 }
 
 CompLexico *buscarLexemaTS(char *lexema) {
-    TIPOELEM *e = malloc(sizeof(TIPOELEM));
-    TCLAVE clave = lexema;
-    buscarNodo(taboaSimbolos, clave, e);
-
-    return e;
+    return buscarNodoPtr(taboaSimbolos, lexema);
 }
 
 int existeLexemaTS(char *lexema) {
