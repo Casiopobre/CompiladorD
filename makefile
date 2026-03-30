@@ -3,10 +3,13 @@ TARGET = compilador
 
 # Compilamos con gcc coa opción -Wall
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -lfl
 
 # Localizamos os .c
-SRCS = main.c lexico.c entrada.c sintactico.c abb.c ts.c erros.c
+SRCS = *.c
+
+# Para o arquivo
+FILE ?= regression.d
 
 .PHONY: all clean run $(TARGET)
 
@@ -14,6 +17,7 @@ all: $(TARGET)
 
 # Para compilar o programa
 $(TARGET):
+	flex especificacionD.l
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRCS)
 
 # Operacións de limpeza
@@ -22,4 +26,4 @@ clean:
 
 # Para compilar e executar
 run: $(TARGET)
-	./$(TARGET)
+	./$(TARGET) $(FILE)

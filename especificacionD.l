@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "definiciones.h"
+#include "cores.h"
 #include "lexico.h"
 #include "ts.h"
 
@@ -81,10 +82,6 @@ DECIMAL_FLOAT       ({DEC_PTO_DEC}|{PTO_DEC}|{DEC_EXP})
 
 %%
 
-\.                  {
-                        CompLexico *cl = crearCompLexico(yytext, '.');
-                        return cl;
-                    }
 
 {DOUBLE_QUOTED_STR} {
                         CompLexico *cl = crearCompLexico(yytext, STR_LITERAL);
@@ -116,14 +113,15 @@ DECIMAL_FLOAT       ({DEC_PTO_DEC}|{PTO_DEC}|{DEC_EXP})
 <NESTED_COMMENT>.       { /* ignorar caracteres */}
     /* Se nos atopamos un EOF e aínda non rematou o comentario, damos un erro */
 <NESTED_COMMENT><<EOF>> {
-                            printf("\nErro (liña %d): comentario anidado sen pechar :(", yylineno);
-                            yyterminate();
+                            printf(BOLD_RED"\nErro (liña %d): comentario anidado sen pechar :("RESET, yylineno);
+                            CompLexico *cl = crearCompLexico("eof", FIN_FICHEIRO);
+                            return cl;
                         }
 
 {DECIMAL_FLOAT}     {
                         CompLexico *cl = crearCompLexico(yytext, FLOAT_LITERAL);
                         return cl;
-                    } 
+                    }
 
 {BIN_INTEGER}       {
                         CompLexico *cl = crearCompLexico(yytext, INT_LITERAL);
@@ -138,7 +136,30 @@ DECIMAL_FLOAT       ({DEC_PTO_DEC}|{PTO_DEC}|{DEC_EXP})
 
 [ \t\n\r]+          { /* ignorar */ }
 
-.                   {  }
+"=="                {  
+                        CompLexico *cl = crearCompLexico(yytext, IGUAL_IGUAL);
+                        return cl;
+                    }
+
+"+="                {  
+                        CompLexico *cl = crearCompLexico(yytext, MAIS_IGUAL);
+                        return cl;
+                    }
+
+"++"                {  
+                        CompLexico *cl = crearCompLexico(yytext, MAIS_MAIS);
+                        return cl;
+                    }
+
+.                   {  
+                        CompLexico *cl = crearCompLexico(yytext, yytext[0]);
+                        return cl;
+                    }
+
+<INITIAL><<EOF>>             {
+                        CompLexico *cl = crearCompLexico("END OF FILE", FIN_FICHEIRO);
+                        return cl;
+                    }
 
 %%
 
@@ -152,6 +173,13 @@ void abrirArquivo(char *arquivo) {
     yyin = fd;
     
     return;
+}
+
+/* Función para pechar o arquivo de entrada */
+void pecharArquivo() {
+    if (yyin != NULL) {
+        fclose(yyin);
+    }
 }
 
 int yywrap() { return 1; }

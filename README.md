@@ -1,18 +1,17 @@
 # Analizador léxico de D
-Programa que simula un **analizador lexico** para a linguaxe de programación **D**. De momento só analiza correctamente o programa `regression.d`.
+Programa que "simula" un **analizador lexico** para a linguaxe de programación **D** empregando a ferramenta FLEX. De momento só analiza correctamente o programa `regression.d`.
 
 ## Contorna de execución
 * Necesaria versión de **gcc 13.3.0** ou superior
 * Testeado en **Ubuntu 24.04.4 LTS**
+* Versión de FLEX empregada: **flex 2.6.4**
 
 ### Instuccións de compilación
 Inclúese un makefile:
-* `make` para compilar o programa
+* `make` para compilar o programa (incluíndo o ficheirio de especificación de flex)
 * `make clean` para eliminar o executable
-* `make run` para compilar e executar o programa
+* `make run` para compilar e executar o programa. Por defecto executa o programa co ficheiro `regression.d`, pero se pode cambiar engadindo a opción `FILE="nome_ficheiro"`.
 
-En caso de querer compilalo a man, simplemete situarse na carpeta do proxecto e executar `gcc -Wall -o compilador main.c lexico.c entrada.c sintactico.c abb.c ts.c erros.c`
+En caso de querer compilalo a man, simplemete situarse na carpeta do proxecto e executar: `gcc -Wall -o compilador *.c -lfl`
 
-## Notas
-* Para o sistema de entrada emprégase *un buffer físico* con *dous buffers lóxicos* (bloques A e B). Para **cambiar o tamaño dos bloques** débese modificar a constante `T_BUF`, situada na liña 12 de entrada.c.
-* O arquivo regression.d debe estar situado na carpeta dende a que se executa o programa. O arquivo a "compilar" pódese cambiar modificando a chamada a `fopen` na fucnión `void iniciar_SE()` (liña 91 aprox.). Compilar outro arquivo pode dar lugar a comportamentos inesperados.
+En caso de querer compilar o arquivo de definición de flex, executar o comando: `flex especificacionD.l`

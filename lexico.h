@@ -17,8 +17,24 @@ CompLexico *yylex();
 CompLexico *sigCompLexico();
 
 
-
+/**
+ * Crea e devolve unha compoñente lexica
+ * @param lexema Lexema da compoñente lexica a crear
+ * @param id Identificador da compoñente lexica a crear 
+ * @returns A compoñente lexica creada
+ */
 CompLexico *crearCompLexico(char *lexema, int id);
+
+/**
+ * Funcion para abrir o arquivo a analizar e indicarllo a flex
+ * @param arquivo Nome do arquivo a analizar
+ */
+void abrirArquivo(char *arquivo);
+
+/**
+ * Función par pechar o arquivo de entrada
+ */
+void pecharArquivo();
 
 
 #endif //LEXICO_H
