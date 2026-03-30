@@ -31,5 +31,7 @@ void devolver();
 void ignorarEntrada(int deboIgnorar);
 
 
+void abrirArquivo(char *arquivo);
+
 
 #endif // ENTRADA_H

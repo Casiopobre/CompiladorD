@@ -6,7 +6,11 @@
 #include "sintactico.h"
 #include "entrada.h"
 
-int main(){
+int main(int argc, char** argv){
+    // Comprobar os parametros de entrada
+    if (argc > 1) {
+        abrirArquivo(argv[1]);
+    }
 
     // Primeiro inicializamos a taboa de simbolos
     inicializarTS();
@@ -14,8 +18,7 @@ int main(){
     // Imprimimos a taboa de simbolos no seu estado incial (so coas palabras clave)
     imprimirTS();
 
-    // Inicializamos o sistema de entrada
-    iniciar_SE();
+    
 
     // Bucle principal de sintáctico
     sintactico();
