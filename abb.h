@@ -1,6 +1,6 @@
 #ifndef ABB_H
 #define ABB_H
-#include "lexico.h"
+#include "ts.h"
 
 // Tipo de dato da clave a empregar
 typedef char *TCLAVE;
@@ -35,7 +35,7 @@ unsigned esAbbVacio(TABB A);
  * @param A Árbore binaria.
  * @param E Informacion do novo nodo.
  */
-void insertarEntrada(TABB *A, TIPOELEM E);
+void insertarEntrada(TABB *A, TIPOELEM elem);
 
 /**
  * Busca un nodo con clave <cl> en el arbol y, si existe
@@ -60,7 +60,7 @@ TIPOELEM* buscarNodoPtr(TABB A, TCLAVE clave);
  * @param A Árbore binaria.
  * @param E Punteiro onde se almacenará o elemento lido.
  */
-void leerElementoAbb(TABB A, TIPOELEM *E);
+void leerElementoAbb(TABB A, TIPOELEM *elem);
 
 /**
  * Devolve a subárbore esquerda da árbore A.
@@ -82,7 +82,7 @@ TABB derAbb(TABB A);
  * @param E Elemento a buscar.
  * @return 1 se o elemento está na árbore, 0 en outro caso.
  */
-unsigned esMiembroAbb(TABB A, TIPOELEM E);
+unsigned esMiembroAbb(TABB A, TIPOELEM elem);
 
 /**
  * Elimina completamente a árbore, liberando toda a memoria.

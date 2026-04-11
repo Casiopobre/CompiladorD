@@ -1,8 +1,19 @@
 #ifndef TS_H
 #define TS_H
-#include "lexico.h"
-#include "abb.h"
-#include "definiciones.h"
+
+
+#define MYVAR 1
+#define MYFNCT 2
+
+// Estrutura para a compoñente lexica
+typedef struct {
+    char* lexema;
+    int tipo;
+    union {
+        double var;
+        double (*fnctptr)();
+    } valor;
+} CompLexico;
 
 /**
  * Inicializa a taboa de simbolos, introducindo as palabras clave
@@ -38,5 +49,8 @@ int existeLexemaTS(char *lexema);
  * Función que limpa a memoria almacenada para a taboa de simbolos
  */
 void liberarMemoriaTS();
+
+
+CompLexico *crearCompLexico(char *lexema, int tipo, double valor);
 
 #endif // TS_H

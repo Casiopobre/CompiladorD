@@ -1,0 +1,6 @@
+#ifndef FUNCIONS_CALC_H
+#define FUNCIONS_CALC_H
+
+
+
+#endif // FUNCIONS_CALC_H

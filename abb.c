@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "abb.h"
-#include "lexico.h"
 
 struct nodo {
     TIPOELEM entradaTS;
@@ -10,8 +9,8 @@ struct nodo {
 };
 
 // Extrae a clave dun nodo (o lexema, neste caso)
-TCLAVE _claveElem(TIPOELEM *E) {
-    return E->lexema;
+TCLAVE _claveElem(TIPOELEM *elem) {
+    return elem->lexema;
 }
 
 // Compara duas claves (orde alfabética)
@@ -25,11 +24,11 @@ int _compararClaves(TCLAVE c1, TCLAVE c2) {
 }
 
 // Para liberar a memoria dun componente lexico
-void _eliminarEntrada(TIPOELEM *E) {
-    if (E == NULL || E->lexema == NULL || (E->id >= 300 && E->id <= 307)) return;
+void _eliminarEntrada(TIPOELEM *elem) {
+    if (elem == NULL || elem->lexema == NULL) return;
     // Liberamos a memoria do lexema
-    free(E->lexema);
-    E->lexema = NULL;
+    free(elem->lexema);
+    elem->lexema = NULL;
 }
 
 void crearAbb(TABB *A) {
@@ -51,26 +50,26 @@ unsigned esAbbVacio(TABB A) {
     return A == NULL;
 }
 
-int _compararClaveElem(TCLAVE c, TIPOELEM E) {
-    return _compararClaves(c, _claveElem(&E));
+int _compararClaveElem(TCLAVE c, TIPOELEM elem) {
+    return _compararClaves(c, _claveElem(&elem));
 }
 
-void insertarEntrada(TABB *A, TIPOELEM E) {
+void insertarEntrada(TABB *A, TIPOELEM elem) {
     // Se a árbore está baleira, inseramos o elemento (reserva de memoria)
     if (esAbbVacio(*A)) {
         *A = (TABB) malloc(sizeof(struct nodo));
-        (*A)->entradaTS = E;
+        (*A)->entradaTS = elem;
         (*A)->izq = NULL;
         (*A)->der = NULL;
         return;
     }
 
-    TCLAVE ce = _claveElem(&E);
+    TCLAVE ce = _claveElem(&elem);
 
     if (_compararClaveElem(ce, (*A)->entradaTS) > 0){
-        insertarEntrada(&(*A)->der, E);
+        insertarEntrada(&(*A)->der, elem);
     } else {
-        insertarEntrada(&(*A)->izq, E);
+        insertarEntrada(&(*A)->izq, elem);
     }
 }
 
@@ -101,8 +100,8 @@ TIPOELEM* buscarNodoPtr(TABB A, TCLAVE clave) {
     }
 }
 
-void leerElementoAbb(TABB A, TIPOELEM *E) {
-    *E = A->entradaTS;
+void leerElementoAbb(TABB A, TIPOELEM *elem) {
+    *elem = A->entradaTS;
 }
 
 TABB izqAbb(TABB A) {
@@ -129,8 +128,8 @@ unsigned _es_miembro_clave(TABB A, TCLAVE cl) {
     return _es_miembro_clave(izqAbb(A), cl);
 }
 
-unsigned esMiembroAbb(TABB A, TIPOELEM E) {
-    return _es_miembro_clave(A, _claveElem(&E));
+unsigned esMiembroAbb(TABB A, TIPOELEM elem) {
+    return _es_miembro_clave(A, _claveElem(&elem));
 }
 
 
