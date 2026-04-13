@@ -26,9 +26,8 @@ int _compararClaves(TCLAVE c1, TCLAVE c2) {
 // Para liberar a memoria dun componente lexico
 void _eliminarEntrada(TIPOELEM *elem) {
     if (elem == NULL || elem->lexema == NULL) return;
-    // Liberamos a memoria do lexema
-    free(elem->lexema);
-    elem->lexema = NULL;
+    //!free(elem->lexema);
+    //!elem->lexema = NULL;
 }
 
 void crearAbb(TABB *A) {

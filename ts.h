@@ -4,6 +4,9 @@
 
 #define MYVAR 1
 #define MYFNCT 2
+#define MYCALC 3
+#define MYLOAD 4
+#define MYCONST 5
 
 // Estrutura para a compoñente lexica
 typedef struct {
@@ -11,7 +14,9 @@ typedef struct {
     int tipo;
     union {
         double var;
-        double (*fnctptr)();
+        double (*fnctptr)(double);
+        void (*calcptr)(void);
+        void (*loadptr)(char*);
     } valor;
 } CompLexico;
 

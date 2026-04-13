@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "abb.h"
 #include "cores.h"
+#include "funcions_calc.h"
 
 
 // Variable global para a taboa de simbolos
@@ -12,6 +14,7 @@ TABB taboaSimbolos;
 void inicializarTS(){
     CompLexico funcions[] = 
     {
+        // Funcións matemáticas
         {"sin", MYFNCT, .valor.fnctptr = sin},
         {"cos", MYFNCT, .valor.fnctptr = cos},
         {"tan", MYFNCT, .valor.fnctptr = tan},
@@ -23,6 +26,19 @@ void inicializarTS(){
         {"exp", MYFNCT, .valor.fnctptr = exp},
         {"floor", MYFNCT, .valor.fnctptr = floor},
         {"ceil", MYFNCT, .valor.fnctptr = ceil},
+
+        // Funcións/comandos da calculadora
+        {"load", MYLOAD, .valor.loadptr = calc_load},
+        {"workspace", MYCALC, .valor.calcptr = calc_workspace},
+        {"exit", MYCALC, .valor.calcptr = calc_exit},
+        {"help", MYCALC, .valor.calcptr = calc_help},
+        {"clear", MYCALC, .valor.calcptr = calc_clear},
+        {"clean", MYCALC, .valor.calcptr = calc_clean},
+
+        // Constantes 
+        { "pi", MYCONST, .valor.var =  M_PI},
+        { "e", MYCONST, .valor.var = M_E},
+        { "tau", MYCONST, .valor.var = M_PI*2}
     };
 
     // Creamos a árbore binaria
@@ -83,7 +99,7 @@ void imprimirTS() {
 CompLexico *crearCompLexico(char *lexema, int tipo, double valor) {
     CompLexico *cl = (CompLexico *) malloc(sizeof(CompLexico));
 
-    cl->lexema = lexema;
+    cl->lexema = strdup(lexema);
     cl->tipo = tipo;
     cl->valor.var = valor;
 

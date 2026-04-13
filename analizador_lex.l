@@ -10,6 +10,9 @@
 /* Para contar as liñas */
 %option yylineno
 
+/* STRINGS (para load()) */
+STRING  \"[^\"]*\"
+
 /*IDENTIFICADORES ------------------------------------*/
 LETRA    [[:alpha:]_]
 ALNUM    [[:alnum:]_]
@@ -22,6 +25,7 @@ ENTEIRO     [[:digit:]]+
 
 EXPONENTE   ([eE][+\-]?{ENTEIRO})
 FLOAT       ({ENTEIRO}\.{ENTEIRO}*{EXPONENTE}?|\.{ENTEIRO}{EXPONENTE}?|{ENTEIRO}{EXPONENTE})
+
 
 
 %%
@@ -39,7 +43,14 @@ FLOAT       ({ENTEIRO}\.{ENTEIRO}*{EXPONENTE}?|\.{ENTEIRO}{EXPONENTE}?|{ENTEIRO}
                     }                        
 
 
-{IDENTIFICADOR}        {
+{STRING}            {   /* Quitamos as comillas e devolvemos a string */
+                        yytext[yyleng-1] = '\0';
+                        yylval.sval = strdup(yytext + 1);
+                        return STRING;
+                    }
+
+
+{IDENTIFICADOR}     {
                         if (!existeLexemaTS(yytext)) {
                             CompLexico *clt = crearCompLexico(yytext, MYVAR, 0.0);
                             engadirEntradaTS(clt);
@@ -47,10 +58,15 @@ FLOAT       ({ENTEIRO}\.{ENTEIRO}*{EXPONENTE}?|\.{ENTEIRO}{EXPONENTE}?|{ENTEIRO}
                         }
 
                         CompLexico *cl = buscarLexemaTS(yytext);
-                        
                         yylval.tptr = cl;
 
-                        return (cl->tipo == MYFNCT) ? FNCT : VAR;
+                        switch (cl->tipo) {
+                            case MYFNCT: return FNCT;
+                            case MYCALC: return CALC;
+                            case MYLOAD: return LOAD;
+                            case MYCONST: return CONST;
+                            default: return VAR;
+                        }
                     }                        
 
 

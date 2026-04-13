@@ -26,15 +26,6 @@ int main(int argc, char** argv){
     // Lanzar o analizador
     yyparse();
 
-    // Liberamos a memoria empregada por flex
-    yylex_destroy();
-
-    // Cando rematamos, imprimimos a taboa de símbolos ao final
-    imprimirTS();
-
-    // Liberamos a memoria da taboa de símbolos (operacións de limpeza)
-    liberarMemoriaTS();
-
     return 0;
 }
 
