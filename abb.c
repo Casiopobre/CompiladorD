@@ -26,8 +26,8 @@ int _compararClaves(TCLAVE c1, TCLAVE c2) {
 // Para liberar a memoria dun componente lexico
 void _eliminarEntrada(TIPOELEM *elem) {
     if (elem == NULL || elem->lexema == NULL) return;
-    //!free(elem->lexema);
-    //!elem->lexema = NULL;
+    if (elem->tipo == MYVAR) free(elem->lexema);
+    elem->lexema = NULL;
 }
 
 void crearAbb(TABB *A) {
@@ -131,4 +131,57 @@ unsigned esMiembroAbb(TABB A, TIPOELEM elem) {
     return _es_miembro_clave(A, _claveElem(&elem));
 }
 
+// Devuelve el nodo con la clave mínima (el más a la izquierda)
+TABB _minimoAbb(TABB A) {
+    if (esAbbVacio(A->izq)) return A;
+    return _minimoAbb(A->izq);
+}
+
+
+void eliminarNodo(TABB *A, TCLAVE clave) {
+    if (esAbbVacio(*A)) return;
+
+    int comp = _compararClaves(clave, _claveElem(&(*A)->entradaTS));
+
+    if (comp < 0) {
+        // Buscar na subarbore esquerda
+        eliminarNodo(&(*A)->izq, clave);
+    } else if (comp > 0) {
+        // Buscar na subarbore dereita
+        eliminarNodo(&(*A)->der, clave);
+    } else {
+        // Nodo atopaado
+        TABB tmp;
+
+        if (esAbbVacio((*A)->izq) && esAbbVacio((*A)->der)) {
+            // Nodo sen fillos
+            _eliminarEntrada(&(*A)->entradaTS);
+            free(*A);
+            *A = NULL;
+
+        } else if (esAbbVacio((*A)->izq)) {
+            // Nodo con fillo dereito
+            tmp = *A;
+            *A = (*A)->der;
+            _eliminarEntrada(&tmp->entradaTS);
+            free(tmp);
+
+        } else if (esAbbVacio((*A)->der)) {
+            // Nodo con fillo esquerdo
+            tmp = *A;
+            *A = (*A)->izq;
+            _eliminarEntrada(&tmp->entradaTS);
+            free(tmp);
+
+        } else {
+            // Nodo con dous fillos
+            TABB sucesor = _minimoAbb((*A)->der);
+            // Copiamos o contido do sucesor ao no actual
+            _eliminarEntrada(&(*A)->entradaTS);
+            (*A)->entradaTS = sucesor->entradaTS;
+            sucesor->entradaTS.lexema = NULL;
+            eliminarNodo(&(*A)->der, _claveElem(&(*A)->entradaTS));
+        }
+    }
+}
 

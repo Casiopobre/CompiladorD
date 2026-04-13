@@ -39,9 +39,9 @@ void engadirEntradaTS(CompLexico *entrada);
 CompLexico *buscarLexemaTS(char* lexema);
 
 /**
- * Función que imprime o contido da taboa de símbolos mediante un recorrido inordre
+ * Función que imprime os nos MYVAR da taboa de símbolos mediante un recorrido inordre
  */
-void imprimirTS();
+void imprimirWorkspace();
 
 /**
  * Funciónq ue comproba se existe un lexema na taboa de simbolos
@@ -55,7 +55,17 @@ int existeLexemaTS(char *lexema);
  */
 void liberarMemoriaTS();
 
-
+/**
+ * Función que crea unha compoñente léxica.
+ * @param lexema Lexema da compoñente léxica
+ * @param tipo Tipo da compoñente léxica (MYVAR, MYFNCT...)
+ * @param valor Valor do lexema (por defecto, poñer 0.0)
+ */
 CompLexico *crearCompLexico(char *lexema, int tipo, double valor);
+
+/**
+ * Elimina a memoria do espazo de traballo
+ */
+void limparWorkspace();
 
 #endif // TS_H

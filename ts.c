@@ -50,6 +50,54 @@ void inicializarTS(){
     }
 }
 
+// Recorre a os nodos MYVAR da ts
+void _recorrer_myvar(TABB a) {
+    if (esAbbVacio(a)) return;
+
+    TIPOELEM nodo;
+    leerElementoAbb(a, &nodo);
+
+    _recorrer_myvar(izqAbb(a));
+
+    if (nodo.tipo == MYVAR) {
+        printf("%s = %g\n", nodo.lexema, nodo.valor.var);
+    }
+
+    _recorrer_myvar(derAbb(a));
+}
+
+
+void imprimirWorkspace() {
+    printf(BRIGHT_BOLD_BLUE"~·~·~·~·~ Variables actuais: ~·~·~·~·~\n");
+    _recorrer_myvar(taboaSimbolos);
+    printf("~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·\n"RESET);
+}
+
+// Función auxiliar para recoller todos os lexemas das cl MYBAR
+void _recolectar_vars(TABB a, char **buf, int *n) {
+    if (esAbbVacio(a)) return;
+    TIPOELEM nodo;
+    leerElementoAbb(a, &nodo);
+    _recolectar_vars(izqAbb(a), buf, n);
+    if (nodo.tipo == MYVAR) {
+        buf[(*n)++] = nodo.lexema;
+    }
+    _recolectar_vars(derAbb(a), buf, n);
+}
+
+void limparWorkspace() {
+    char *buf[256];
+    int n = 0;
+
+    _recolectar_vars(taboaSimbolos, buf, &n);
+
+    for (int i = 0; i < n; i++) {
+        eliminarNodo(&taboaSimbolos, buf[i]);
+    }
+
+    printf(BRIGHT_BOLD_BLUE "Memoria do espazo de traballo eliminada! :)\n" RESET);
+}
+
 
 // Busca unha entrada na taboa de símbolos por lexema
 CompLexico *buscarLexemaTS(char *lexema) {
@@ -74,27 +122,6 @@ void liberarMemoriaTS() {
     printf(BRIGHT_GREEN"Memoria da taboa de símbolos eliminada correctamente :)\n"RESET);
 }
 
-// Recorre a árbore de esquerda a dereita (inorde) imprimindo o contido dos nodos
-void _recorrer_TS(TABB A){
-    if (esAbbVacio(A)) return;
-
-    TIPOELEM nodo;
-
-    leerElementoAbb(A, &nodo);
-
-    _recorrer_TS(izqAbb(A));
-
-    printf("<%s, %s>\n", nodo.lexema, nodo.tipo == 1 ? "VAR" : "MYFNCT");
-    
-    _recorrer_TS(derAbb(A));
-}
-
-
-void imprimirTS() {
-    printf(BRIGHT_BLUE"~*~*~*~*~ Taboa de símbolos ~*~*~*~*~\n");
-    _recorrer_TS(taboaSimbolos);
-    printf("~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~\n"RESET);
-}
 
 CompLexico *crearCompLexico(char *lexema, int tipo, double valor) {
     CompLexico *cl = (CompLexico *) malloc(sizeof(CompLexico));

@@ -89,5 +89,11 @@ unsigned esMiembroAbb(TABB A, TIPOELEM elem);
  * @param A Punteiro á árbore que se quere eliminar.
  */
 void eliminarAbb(TABB *A);
+/**
+ * Elimina un nó da arbore
+ * @param A Punteiro á árbore na que se quere eliminar un nó
+ * @param clave Clave do nó a eliminar
+ */
+void eliminarNodo(TABB *A, TCLAVE clave);
 
 #endif //ABB_H

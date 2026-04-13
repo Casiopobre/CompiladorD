@@ -18,8 +18,9 @@ void calc_load(char *nome_ficheiro) {
 }
 
 void calc_workspace() {
-
+    imprimirWorkspace();
 }
+
 
 void calc_exit() {
     // Imprimimos unha mensaxe de saída
@@ -34,11 +35,13 @@ void calc_exit() {
     exit(0);
 }
 
+
 void calc_help() {
     printf("\n ~.~.~.~.~.~.~.~.~ Menú de axuda: ~.~.~.~.~.~.~.~.~\n");
 
 
 }
+
 
 void calc_clear() {
     // Executamos o comando clear de linux
@@ -47,5 +50,5 @@ void calc_clear() {
 
 
 void calc_clean() {
-
+    limparWorkspace();
 }
