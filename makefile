@@ -1,5 +1,5 @@
 # Nome do executable final
-TARGET = compilador
+TARGET = calculadora
 
 # Compilamos con gcc coa opción -Wall (erros), -lfl (flex), -lm (lib. matematica)
 CC = gcc
