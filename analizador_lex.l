@@ -6,10 +6,14 @@
 #include "ts.h"
 #include "gramatica.tab.h" 
 
+// Pila de ficheiros abertos
+#define MAX_INCLUDE_DEPTH 16
+FILE  *_file_stack[MAX_INCLUDE_DEPTH];
+char  *_name_stack[MAX_INCLUDE_DEPTH];
+int    _stack_top = 0;
+
 // Nome do arquivo actual para as mensaxes de erro
 char *_nome_ficheiro_actual = NULL;
-// File descriptor para poder abrilo e pechalo
-FILE *fd = NULL;
 %}
 
 /* Para contar as liñas */
@@ -79,13 +83,18 @@ FLOAT       ({ENTEIRO}\.{ENTEIRO}*{EXPONENTE}?|\.{ENTEIRO}{EXPONENTE}?|{ENTEIRO}
 
 <<EOF>>             {   /* Fai un pop do buffer de flex para sair do arquivo (se e que está en un) */
                         yypop_buffer_state();
-                        fclose(fd);
+
+                        if (_stack_top > 0) {
+                            // Pechamos o ficheiro que acaba de rematar
+                            fclose(_file_stack[--_stack_top]);
+                            free(_name_stack[_stack_top]);
+
+                            // Restauramos o nome do ficheiro anterior
+                            _nome_ficheiro_actual = (_stack_top > 0) ? _name_stack[_stack_top - 1] : NULL;
+                        }
+
                         if (!YY_CURRENT_BUFFER) {
-                            /* Non hai máis buffers*/
                             return 0;
-                        } else {
-                            /* Había un buffer anterior --> continuamos */
-                            return yylex();
                         }
                     }
 
@@ -102,15 +111,30 @@ void prepararEntradaEstandar() {
 
 // Carga un ficheiro pusheando un novo buffer na pila.
 void cargarFicheiro(char *nome) {
+
+    if (_stack_top >= MAX_INCLUDE_DEPTH) {
+        fprintf(stderr, "Erro: demasiados ficheiros anidados\n");
+        return;
+    }
+
     // Abrimos o arquivo
-    fd = fopen(nome, "r");
-    if (fd == NULL) {
+    FILE *f = fopen(nome, "r");
+    if (f == NULL) {
         fprintf(stderr, "Erro: non se puido abrir o ficheiro '%s'\n", nome);
         return;
     }
+
+    // Gardamos o ficheiro e o nome na pila paralela
+    _file_stack[_stack_top] = f;
+    _name_stack[_stack_top] = strdup(nome);
+    _stack_top++;
+
+    // Actualizamos o nome actual para yyerror
+    _nome_ficheiro_actual = _name_stack[_stack_top - 1];
+
     // Pushea un novo buffer, gardando o actual (stdin) no stack
-    yypush_buffer_state(yy_create_buffer(fd, YY_BUF_SIZE));
-    yylineno = 1; // Para resetear as liñas
+    yypush_buffer_state(yy_create_buffer(f, YY_BUF_SIZE));
+    yylineno = 0; // Para resetear as liñas
 }
 
 int yywrap() {

@@ -62,7 +62,9 @@ exp:    NUM                 { $$ = $1; }
         | VAR               {
                                 /* Primeiro comprobamos se a variable está asignada; se non o está: erro */
                                 if (!$1->inicializada) {
-                                    fprintf(stderr, "Erro: variable '%s' non asignada\n", $1->lexema);
+                                    char msg[100];
+                                    sprintf(msg, "variable '%s' non asignada", $1->lexema);
+                                    yyerror(msg);
                                     YYERROR;
                                 }
                                 /* Se esta inicializada (ten un valor asignado), collemos o seu valor */
@@ -87,10 +89,10 @@ exp:    NUM                 { $$ = $1; }
                                 if ($3 == 0) {
                                     /* Se e 0/0 */
                                     if ($1 == 0)
-                                        fprintf(stderr, "Erro: indeterminación (0/0)\n");
+                                        yyerror("indeterminación (0/0)");
                                     /* Se e num/0 */
                                     else
-                                        fprintf(stderr, "Erro: división por cero\n");
+                                        yyerror("división por cero");
                                     YYERROR;
                                 }
                                 /* Se é unha division "valida" */

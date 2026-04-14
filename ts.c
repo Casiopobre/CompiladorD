@@ -61,7 +61,7 @@ void _recorrer_myvar(TABB a) {
     _recorrer_myvar(izqAbb(a));
 
     if (nodo.tipo == MYVAR) {
-        printf("%s = %g\n", nodo.lexema, nodo.valor.var);
+        printf(BRIGHT_BOLD_BLUE"%s = %g\n"RESET, nodo.lexema, nodo.valor.var);
     }
 
     _recorrer_myvar(derAbb(a));
@@ -69,9 +69,9 @@ void _recorrer_myvar(TABB a) {
 
 // Imprime os nodos de tipo MYVAR da abb
 void imprimirWorkspace() {
-    printf(BRIGHT_BOLD_BLUE"~·~·~·~·~ Variables actuais: ~·~·~·~·~\n");
+    printf(BRIGHT_BOLD_BLUE"~·~·~·~·~ Variables actuais: ~·~·~·~·~\n"RESET);
     _recorrer_myvar(taboaSimbolos);
-    printf("~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·\n"RESET);
+    printf(BRIGHT_BOLD_BLUE"~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·\n"RESET);
 }
 
 
@@ -148,7 +148,6 @@ void engadirEntradaTS(CompLexico *entrada){
 
 void liberarMemoriaTS() {
     eliminarAbb(&taboaSimbolos);
-    printf(BRIGHT_BOLD_MAGENTA "Memoria da taboa de símbolos eliminada correctamente :)\n"RESET);
 }
 
 // Crea unha compoñente lexica
