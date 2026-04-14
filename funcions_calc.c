@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "ts.h"
+#include "funcions_calc.h"
 
 extern void yylex_destroy(void);
 
@@ -14,7 +15,8 @@ extern void yylex_destroy(void);
 // clean: eliminar as variables do workspace
 
 void calc_load(char *nome_ficheiro) {
-
+    printf("Cargando ficheiro '%s' ... \n", nome_ficheiro);
+    cargarFicheiro(nome_ficheiro);
 }
 
 void calc_workspace() {

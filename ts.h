@@ -12,6 +12,7 @@
 typedef struct {
     char* lexema;
     int tipo;
+    int inicializada; // = 0 se a variable non está asignada; 1 en caso contrario
     union {
         double var;
         double (*fnctptr)(double);
@@ -67,5 +68,8 @@ CompLexico *crearCompLexico(char *lexema, int tipo, double valor);
  * Elimina a memoria do espazo de traballo
  */
 void limparWorkspace();
+
+
+void limparVarsNonInicializadas();
 
 #endif // TS_H

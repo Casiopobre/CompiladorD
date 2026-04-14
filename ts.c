@@ -46,6 +46,7 @@ void inicializarTS(){
 
     // Insertamos as funcións na taboa de simbolos
     for (int i = 0; i < sizeof(funcions)/sizeof(CompLexico); i++) {
+        funcions[i].inicializada = 1;
         insertarEntrada(&taboaSimbolos, funcions[i]);
     }
 }
@@ -98,6 +99,27 @@ void limparWorkspace() {
     printf(BRIGHT_BOLD_BLUE "Memoria do espazo de traballo eliminada! :)\n" RESET);
 }
 
+void _recolectar_no_inicializadas(TABB a, char **buf, int *n) {
+    if (esAbbVacio(a)) return;
+    TIPOELEM nodo;
+    leerElementoAbb(a, &nodo);
+    _recolectar_no_inicializadas(izqAbb(a), buf, n);
+    if (nodo.tipo == MYVAR && !nodo.inicializada) {
+        buf[(*n)++] = nodo.lexema;
+    }
+    _recolectar_no_inicializadas(derAbb(a), buf, n);
+}
+
+
+void limparVarsNonInicializadas() {
+    char *buf[256];
+    int n = 0;
+    _recolectar_no_inicializadas(taboaSimbolos, buf, &n);
+    for (int i = 0; i < n; i++) {
+        eliminarNodo(&taboaSimbolos, buf[i]);
+    }
+}
+
 
 // Busca unha entrada na taboa de símbolos por lexema
 CompLexico *buscarLexemaTS(char *lexema) {
@@ -128,6 +150,7 @@ CompLexico *crearCompLexico(char *lexema, int tipo, double valor) {
 
     cl->lexema = strdup(lexema);
     cl->tipo = tipo;
+    cl->inicializada = 0;
     cl->valor.var = valor;
 
     return cl;

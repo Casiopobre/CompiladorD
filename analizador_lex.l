@@ -5,10 +5,14 @@
 #include <string.h>        
 #include "ts.h"
 #include "gramatica.tab.h" 
+
+// Nome do arquivo actual para as mensaxes de erro
+char *_nome_ficheiro_actual = NULL;
 %}
 
 /* Para contar as liñas */
 %option yylineno
+%option stack
 
 /* STRINGS (para load()) */
 STRING  \"[^\"]*\"
@@ -37,7 +41,7 @@ FLOAT       ({ENTEIRO}\.{ENTEIRO}*{EXPONENTE}?|\.{ENTEIRO}{EXPONENTE}?|{ENTEIRO}
 
 
 {FLOAT}     |                                      
-{ENTEIRO}   {
+{ENTEIRO}           {
                         yylval.val = atof(yytext);
                         return NUM;
                     }                        
@@ -70,30 +74,39 @@ FLOAT       ({ENTEIRO}\.{ENTEIRO}*{EXPONENTE}?|\.{ENTEIRO}{EXPONENTE}?|{ENTEIRO}
                     }                        
 
 
-<<EOF>>             { return 0; }
+<<EOF>>             {
+                        yypop_buffer_state();
+                        if (!YY_CURRENT_BUFFER) {
+                            /* Non hai máis buffers*/
+                            return 0;
+                        } else {
+                            /* Había un buffer anterior (stdin): continuamos */
+                            return yylex();
+                        }
+                    }
+
 
 .                   { return yytext[0]; }
 
 %%
 
+void prepararEntradaEstandar() {
+    // Forzamos a que stdin sea la base del stack
+    yypush_buffer_state(yy_create_buffer(stdin, YY_BUF_SIZE));
+}
 
-/*Función para que flex empregue un arquivo como entrada (en vez de a entrada estandar)*/
-void abrirArquivo(char *arquivo) {
-    FILE *fd = fopen(arquivo, "r");
+// Carga un ficheiro pusheando un novo buffer no stack.
+void cargarFicheiro(char *nome) {
+    FILE *fd = fopen(nome, "r");
     if (fd == NULL) {
-        perror("Erro ao abrir o arquivo\n");
+        fprintf(stderr, "Erro: non se puido abrir o ficheiro '%s'\n", nome);
         return;
     }
-    yyin = fd;
-    
-    return;
+    // Pushea un novo buffer, gardando o actual (stdin) no stack
+    yypush_buffer_state(yy_create_buffer(fd, YY_BUF_SIZE));
+    yylineno = 1; // Para resetear as liñas
 }
 
-/* Función para pechar o arquivo de entrada */
-void pecharArquivo() {
-    if (yyin != NULL) {
-        fclose(yyin);
-    }
+int yywrap() {
+    return 1;
 }
-
-int yywrap() { return 1; }

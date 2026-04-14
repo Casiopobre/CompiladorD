@@ -22,6 +22,9 @@ void calc_clear();
 void calc_clean();
 
 
+void cargarFicheiro(char *nome);
+
+void prepararEntradaEstandar();
 
 
 #endif // FUNCIONS_CALC_H
