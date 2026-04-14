@@ -1,24 +1,29 @@
 # Nome do executable final
 TARGET = compilador
 
-# Compilamos con gcc coa opción -Wall
+# Compilamos con gcc coa opción -Wall (erros), -lfl (flex), -lm (lib. matematica)
 CC = gcc
-CFLAGS = -Wall -lfl
+CFLAGS = -Wall -lfl -lm
 
 # Localizamos os .c
 SRCS = *.c
-
-# Para o arquivo
-FILE ?= regression.d
 
 .PHONY: all clean run $(TARGET)
 
 all: $(TARGET)
 
+bison:
+	bison -d gramatica.y
+
+flex:
+	flex analizador_lex.l
+
+
 # Para compilar o programa
 $(TARGET):
-	flex especificacionD.l
-	$(CC) $(CFLAGS) -o $(TARGET) $(SRCS)
+	bison -d gramatica.y
+	flex analizador_lex.l
+	$(CC) $(SRCS) $(CFLAGS) -o $(TARGET)
 
 # Operacións de limpeza
 clean:
@@ -26,4 +31,4 @@ clean:
 
 # Para compilar e executar
 run: $(TARGET)
-	./$(TARGET) $(FILE)
+	./$(TARGET)

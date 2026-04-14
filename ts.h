@@ -65,11 +65,13 @@ void liberarMemoriaTS();
 CompLexico *crearCompLexico(char *lexema, int tipo, double valor);
 
 /**
- * Elimina a memoria do espazo de traballo
+ * Elimina a memoria do espazo de traballo (os nodos da árbore de tipo MYBAR)
  */
 void limparWorkspace();
 
-
+/**
+ * Elimina os nodos da árbore que non estan inicializados 
+ */
 void limparVarsNonInicializadas();
 
 #endif // TS_H

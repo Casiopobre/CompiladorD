@@ -10,7 +10,7 @@
 // Variable global para a taboa de simbolos
 TABB taboaSimbolos;
 
-
+// Función de inicialización que crea a arbore binaria e o inicializa coas funcións e constantes iniciais
 void inicializarTS(){
     CompLexico funcions[] = 
     {
@@ -67,12 +67,13 @@ void _recorrer_myvar(TABB a) {
     _recorrer_myvar(derAbb(a));
 }
 
-
+// Imprime os nodos de tipo MYVAR da abb
 void imprimirWorkspace() {
     printf(BRIGHT_BOLD_BLUE"~·~·~·~·~ Variables actuais: ~·~·~·~·~\n");
     _recorrer_myvar(taboaSimbolos);
     printf("~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·~·\n"RESET);
 }
+
 
 // Función auxiliar para recoller todos os lexemas das cl MYBAR
 void _recolectar_vars(TABB a, char **buf, int *n) {
@@ -86,6 +87,7 @@ void _recolectar_vars(TABB a, char **buf, int *n) {
     _recolectar_vars(derAbb(a), buf, n);
 }
 
+// Función que elimina todos os nós de tipo MYBAR (as variables definidas polo usuario)
 void limparWorkspace() {
     char *buf[256];
     int n = 0;
@@ -96,9 +98,11 @@ void limparWorkspace() {
         eliminarNodo(&taboaSimbolos, buf[i]);
     }
 
-    printf(BRIGHT_BOLD_BLUE "Memoria do espazo de traballo eliminada! :)\n" RESET);
+    printf(BRIGHT_BOLD_MAGENTA "Memoria do espazo de traballo eliminada! :)\n" RESET);
 }
 
+
+// Función que recolle os nodos da abb de tipo MYBAR que teñan o campo inicializada = 0
 void _recolectar_no_inicializadas(TABB a, char **buf, int *n) {
     if (esAbbVacio(a)) return;
     TIPOELEM nodo;
@@ -110,7 +114,7 @@ void _recolectar_no_inicializadas(TABB a, char **buf, int *n) {
     _recolectar_no_inicializadas(derAbb(a), buf, n);
 }
 
-
+// Función que elimia os nós MYBAR cuxo valor de inicializada = 0 (que non estean inicializadas)
 void limparVarsNonInicializadas() {
     char *buf[256];
     int n = 0;
@@ -126,6 +130,7 @@ CompLexico *buscarLexemaTS(char *lexema) {
     return buscarNodoPtr(taboaSimbolos, lexema);
 }
 
+// Comproba se existe un nodo na abb co lexema proporcionado
 int existeLexemaTS(char *lexema) {
     TIPOELEM *e = malloc(sizeof(TIPOELEM));
     e->lexema = lexema;
@@ -135,16 +140,18 @@ int existeLexemaTS(char *lexema) {
     return comprobacion;
 }
 
+// Engade unha entrada á abb
 void engadirEntradaTS(CompLexico *entrada){
     insertarEntrada(&taboaSimbolos, *entrada);
 }
 
+
 void liberarMemoriaTS() {
     eliminarAbb(&taboaSimbolos);
-    printf(BRIGHT_GREEN"Memoria da taboa de símbolos eliminada correctamente :)\n"RESET);
+    printf(BRIGHT_BOLD_MAGENTA "Memoria da taboa de símbolos eliminada correctamente :)\n"RESET);
 }
 
-
+// Crea unha compoñente lexica
 CompLexico *crearCompLexico(char *lexema, int tipo, double valor) {
     CompLexico *cl = (CompLexico *) malloc(sizeof(CompLexico));
 

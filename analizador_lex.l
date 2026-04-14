@@ -8,10 +8,13 @@
 
 // Nome do arquivo actual para as mensaxes de erro
 char *_nome_ficheiro_actual = NULL;
+// File descriptor para poder abrilo e pechalo
+FILE *fd = NULL;
 %}
 
 /* Para contar as liñas */
 %option yylineno
+/* Para empregar a pila de flex (para a función de carga de arquivos load()) */
 %option stack
 
 /* STRINGS (para load()) */
@@ -24,7 +27,6 @@ ALNUM    [[:alnum:]_]
 IDENTIFICADOR          {LETRA}{ALNUM}*      
 
 /* NUMEROS ------------------------------------*/
-
 ENTEIRO     [[:digit:]]+
 
 EXPONENTE   ([eE][+\-]?{ENTEIRO})
@@ -54,16 +56,17 @@ FLOAT       ({ENTEIRO}\.{ENTEIRO}*{EXPONENTE}?|\.{ENTEIRO}{EXPONENTE}?|{ENTEIRO}
                     }
 
 
-{IDENTIFICADOR}     {
+{IDENTIFICADOR}     {   /* Se non esta na taboa de simbolos, engadimolo (o da variable temporal e por como esta feito o abb, pero non me da tempo de solucionalo :( )) */
                         if (!existeLexemaTS(yytext)) {
-                            CompLexico *clt = crearCompLexico(yytext, MYVAR, 0.0);
-                            engadirEntradaTS(clt);
-                            free(clt);
+                            CompLexico *cl_temp = crearCompLexico(yytext, MYVAR, 0.0);
+                            engadirEntradaTS(cl_temp);
+                            free(cl_temp);
                         }
 
                         CompLexico *cl = buscarLexemaTS(yytext);
                         yylval.tptr = cl;
 
+                        /* Asigamoslle o tipo pertinente */
                         switch (cl->tipo) {
                             case MYFNCT: return FNCT;
                             case MYCALC: return CALC;
@@ -74,13 +77,14 @@ FLOAT       ({ENTEIRO}\.{ENTEIRO}*{EXPONENTE}?|\.{ENTEIRO}{EXPONENTE}?|{ENTEIRO}
                     }                        
 
 
-<<EOF>>             {
+<<EOF>>             {   /* Fai un pop do buffer de flex para sair do arquivo (se e que está en un) */
                         yypop_buffer_state();
+                        fclose(fd);
                         if (!YY_CURRENT_BUFFER) {
                             /* Non hai máis buffers*/
                             return 0;
                         } else {
-                            /* Había un buffer anterior (stdin): continuamos */
+                            /* Había un buffer anterior --> continuamos */
                             return yylex();
                         }
                     }
@@ -90,14 +94,16 @@ FLOAT       ({ENTEIRO}\.{ENTEIRO}*{EXPONENTE}?|\.{ENTEIRO}{EXPONENTE}?|{ENTEIRO}
 
 %%
 
+// Mete stdin na pila para que ao sair dun arquivo, flex se atope ca entrada estandar e lle devolva o prompt ao usuario
 void prepararEntradaEstandar() {
-    // Forzamos a que stdin sea la base del stack
+    // Forzamos a que stdin sexa a base da pila
     yypush_buffer_state(yy_create_buffer(stdin, YY_BUF_SIZE));
 }
 
-// Carga un ficheiro pusheando un novo buffer no stack.
+// Carga un ficheiro pusheando un novo buffer na pila.
 void cargarFicheiro(char *nome) {
-    FILE *fd = fopen(nome, "r");
+    // Abrimos o arquivo
+    fd = fopen(nome, "r");
     if (fd == NULL) {
         fprintf(stderr, "Erro: non se puido abrir o ficheiro '%s'\n", nome);
         return;
